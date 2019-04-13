@@ -264,35 +264,41 @@ def main():
   # Input Options
   parser.add_option("--max-dist", dest="max_dist", type="int", metavar="INT", default=200, help=("Placeholder.")) # 1
   parser.add_option("--alias-file", dest="alias_file_name", type="string", metavar="FILE", default=None, help=("Placeholder.")) # 2
-  parser.add_option("--genes-file", dest="genes_file_name", type="string", metavar="FILE", default=None, help=("Placeholder.")) # 3
-  parser.add_option("--expression-file", dest="exp_file_name", type="string", metavar="FILE", default=None, help=("Placeholder.")) # 4
-  parser.add_option("--dsb-file", dest="dsb_file_name", type="string", metavar="FILE", default=None, help=("Placeholder.")) # 5
-  parser.add_option("--distance-file", dest="dist_file_name", type="string", metavar="FILE", default=None, help=("Placeholder.")) # 6
-  parser.add_option("--output-file", dest="output_file_name", type="string", metavar="FILE", default=None, help=("Placeholder.")) # 7
+  parser.add_option("--chrom-sizes", dest="chrom_sizes_file_name", type="string", metavar="FILE", default=None, help=("Placeholder.")) # 3
+  parser.add_option("--genes-file", dest="genes_file_name", type="string", metavar="FILE", default=None, help=("Placeholder.")) # 4
+  parser.add_option("--expression-file", dest="exp_file_name", type="string", metavar="FILE", default=None, help=("Placeholder.")) # 5
+  parser.add_option("--dsb-file", dest="dsb_file_name", type="string", metavar="FILE", default=None, help=("Placeholder.")) # 6
+  parser.add_option("--distance-file", dest="dist_file_name", type="string", metavar="FILE", default=None, help=("Placeholder.")) # 7
+  parser.add_option("--temp-loc", dest="temp_loc", type="string", metavar="FILE", default=None, help=("Placeholder.")) # 8
+  parser.add_option("--output-file", dest="output_file_name", type="string", metavar="FILE", default=None, help=("Placeholder.")) # 9
 
   # Processing Options
   options, arguments = parser.parse_args()
-  if len(arguments) < 7:
+  if len(arguments) < 9:
     print(usage_message)
     exit(1)
 
   # General options
   max_dist = options.max_dist
   alias_file_name = options.alias_file_name
+  chrom_sizes_file_name = options.chrom_sizes_file_name
   genes_file_name = options.genes_file_name
   exp_file_name = options.exp_file_name
   dsb_file_name = options.dsb_file_name
   dist_file_name = options.dist_file_name
+  temp_loc = options.temp_loc
   output_file_name = options.output_file_name
 
   # Argument error
   argument_error_message = "ERROR: Please provide all arguments."
   if(not max_dist): print(argument_error_message)
   if(not alias_file_name): print(argument_error_message)
+  if(not chrom_sizes_file_name): print(argument_error_message)
   if(not genes_file_name): print(argument_error_message)
   if(not exp_file_name): print(argument_error_message)
   if(not dsb_file_name): print(argument_error_message)
   if(not dist_file_name): print(argument_error_message)
+  if(not temp_loc): print(argument_error_message)
   if(not output_file_name): print(argument_error_message)
 
   # Global Parameters
@@ -306,18 +312,71 @@ def main():
   # Execution
   ###################################################################################################
 
-  # Correcting DSB file to BAM
-  if(dsb_file_name.split(".")[-1] != "bam"):
-    # TODO
+  # Correcting DSB file to BAM (uncompressing)
+  extracted_dsb_file_name = dsb_file_name
+  if(dsb_file_name.split(".")[-1] == "gz"):
+    extracted_dsb_file_name = temp_loc + "extracted_dsb_file_name" + dsb_file_name.split(".")[-2]
+    command = "gzip -cd "+dsb_file_name+" "+extracted_dsb_file_name
+    os.system(command)
+  elif(dsb_file_name.split(".")[-1] == "zip"):
+    extracted_dsb_file_name = temp_loc + "extracted_dsb_file_name" + dsb_file_name.split(".")[-2]
+    command = "gzip -cd "+dsb_file_name+" "+extracted_dsb_file_name
+    os.system(command)
 
-  # Correcting expression file to list
-  if(exp_file_name.split(".")[-1] == "bam"):
-    # TODO
+  # Correcting DSB file to BAM (supported formats)
+  dsb_bam_file_name = extracted_dsb_file_name
+  if(extracted_dsb_file_name.split(".")[-1] == "bed"):
+    dsb_bam_file_name = temp_loc + "dsb_bam_file_name.bam"
+    command = "python 1_processDsbFile.py "+" ".join([chrom_sizes_file_name, extracted_dsb_file_name, temp_loc, dsb_bam_file_name])
+    os.system(command)
+  elif(extracted_dsb_file_name.split(".")[-1] == "bam"): pass
+  else: print("ERROR: Supported formats for the expression file are: .bam or .bed")
 
-  # Correcting distances to list
-    # TODO
+  # Correcting expression file to list (uncompressing)
+  extracted_exp_file_name = exp_file_name
+  if(exp_file_name.split(".")[-1] == "gz"):
+    extracted_exp_file_name = temp_loc + "extracted_exp_file_name" + exp_file_name.split(".")[-2]
+    command = "gzip -cd "+exp_file_name+" "+extracted_exp_file_name
+    os.system(command)
+  elif(exp_file_name.split(".")[-1] == "zip"):
+    extracted_exp_file_name = temp_loc + "extracted_exp_file_name" + exp_file_name.split(".")[-2]
+    command = "gzip -cd "+exp_file_name+" "+extracted_exp_file_name
+    os.system(command)
+
+  # Correcting expression file to list (supported formats)
+  exp_list_file_name = extracted_exp_file_name
+  if(extracted_exp_file_name.split(".")[-1] == "bed" or extracted_exp_file_name.split(".")[-1] == "bam"):
+    exp_list_file_name = temp_loc + "dsb_bam_file_name.bam"
+    command = "python 2_processExpFile.py "+" ".join([alias_file_name, chrom_sizes_file_name, genes_file_name, extracted_exp_file_name, exp_list_file_name])
+    os.system(command)
+  elif(extracted_exp_file_name.split(".")[-1] == "txt"): pass
+  else: print("ERROR: Supported formats for the expression file are: .bam, .bed or .txt")
+  
+  # Correcting distances file to list (uncompressing)
+  extracted_dist_file_name = dist_file_name
+  if(dist_file_name.split(".")[-1] == "gz"):
+    extracted_dist_file_name = temp_loc + "extracted_dist_file_name" + dist_file_name.split(".")[-2]
+    command = "gzip -cd "+dist_file_name+" "+extracted_dist_file_name
+    os.system(command)
+  elif(dist_file_name.split(".")[-1] == "zip"):
+    extracted_dist_file_name = temp_loc + "extracted_dist_file_name" + dist_file_name.split(".")[-2]
+    command = "gzip -cd "+dist_file_name+" "+extracted_dist_file_name
+    os.system(command)
+
+  # Correcting distances file to list (supported formats)
+  dist_list_file_name = extracted_dist_file_name
+  if(extracted_dist_file_name.split(".")[-1] == "txt"):
+    extList = [str(e*1000) for e in range(0, max_dist)]
+    for ext in extList:
+      dist_w_list_file_name = temp_loc + "anchors_with_ctcf_" + ext
+      dist_wo_list_file_name = temp_loc + "anchors_wo_ctcf_" + ext
+      dist_wwo_list_file_name = temp_loc + "anchors_with_and_wo_ctcf_" + ext
+      command = "python 4_extendAnchors.py "+" ".join([ext, extracted_dist_file_name, chrom_sizes_file_name, temp_loc, dist_wwo_list_file_name, dist_w_list_file_name, dist_wo_list_file_name])
+      os.system(command)
+    command = "python 4_createDistanceTable.py "+" ".join([alias_file_name, genes_file_name, temp_loc + "anchors_with_ctcf", dist_list_file_name])
+    os.system(command)
+  else: print("ERROR: Supported formats for the expression file are: .txt (CTCF-annotated HiCCUPScontacts calling)")
      
-
   # Creating table
-  create_multi_table(max_dist, alias_file_name, genes_file_name, exp_file_name, dsb_file_name, dist_file_name, output_file_name)
+  create_multi_table(max_dist, alias_file_name, genes_file_name, exp_list_file_name, dsb_bam_file_name, dist_list_file_name, output_file_name)
 
