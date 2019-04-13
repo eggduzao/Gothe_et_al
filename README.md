@@ -42,7 +42,12 @@ pip install --user XXXXXXXXX
 
 In this section we will follow step by step the logic of this toolkit to
 create the Figure 4C of the paper (and its corresponding numeric table; which can be easily
-opened in Excel to make further plots). Depending on the versions of the dependencies installed,
+opened in Excel to make further plots).
+
+This Figure shows the triple (and pairwise) correlation between double strand breaks (DSBs),
+expression and the gene's distance from its closest loop anchor.
+
+Depending on the versions of the dependencies installed,
 minor numerical fluctuations are expected, since dynamic programming was used at some stages to
 accelerate the execution. However, this will not modify the general trend of such a Figure.
 
@@ -54,7 +59,7 @@ corr-dsb-dist-exp --help
 
 You will see the list of arguments that this tool requires:
 
-- max-dist: 
+- max-dist: The maximum 
 - alias-file: 
 - chrom-sizes: 
 - genes-file: 
@@ -64,7 +69,19 @@ You will see the list of arguments that this tool requires:
 - temp-loc: 
 - output-location: 
 
+To run the tool you can simply create *input*, *output* and *temporary* folders and
+copy or download the relevant data to the input folder.
 
+We have already created some initial files for this script. The intention is to
+make the execution faster. However, you are free to try with your own data!
+
+Supposing gothe_dir is the directory of the repository
+
+```
+mkdir -p ~/input/ ~/output/ ~/temp/
+cd ~/input/
+
+```
 
 corr-dsb-dist-exp --max-dist 50 --alias-file /Users/egg/Projects/Test/Input/alias_hg19.txt --chrom-sizes /Users/egg/Projects/Test/Input/chrom.sizes.hg19.txt --genes-file /Users/egg/Projects/Test/Input/all_genes.bed --expression-file /Users/egg/Projects/Test/Input/K562_expression.txt --dsb-file /Users/egg/Projects/Test/Input/K562_ETO.bam --distance-file /Users/egg/Projects/Test/Input/K562_loops.txt --temp-loc /Users/egg/Projects/Test/Temp/ --output-location /Users/egg/Projects/Test/Output/
 
