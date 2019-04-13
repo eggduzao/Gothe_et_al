@@ -7,26 +7,6 @@
 import os
 import sys
 
-# Input
-largestLengthHalf = int(sys.argv[1])
-loopFileName = sys.argv[2]
-chromSizesFileName = sys.argv[3]
-tempLoc = sys.argv[4]
-outputFileWithAndWoCtcfName = sys.argv[5]
-outputFileWithCtcfName = sys.argv[6]
-outputFileWoCtcfName = sys.argv[7]
-
-# Initialization
-outLoc = "/".join(outputFileWithAndWoCtcfName.split("/")[:-1]) + "/"
-command = "mkdir -p "+outLoc
-os.system(command)
-command = "mkdir -p "+tempLoc
-os.system(command)
-
-###################################################################################################
-# Functions
-###################################################################################################
-
 def read_chromosome_sizes(chrom_sizes_file_name):
 
   # Creating alias dictionary
@@ -96,13 +76,20 @@ def index_bam_file(input_file_name):
 
 def extend_anchors(largest_length_half, loop_file_name, chrom_sizes_file_name, temporary_location, output_file_with_and_wo_ctcf_name, output_file_with_ctcf_name, output_file_wo_ctcf_name):
 
+  # Initialization
+  outLoc = "/".join(output_file_with_and_wo_ctcf_name.split("/")[:-1]) + "/"
+  command = "mkdir -p "+outLoc
+  os.system(command)
+  command = "mkdir -p "+temporary_location
+  os.system(command)
+
   # Allowed chromosomes
   chrom_list, chrom_dict = read_chromosome_sizes(chrom_sizes_file_name)
 
   # Writing extended anchors
-  temp_file_with_and_wo_ctcf_name = tempLoc + "temp_file_with_and_wo_ctcf_name.bed"
-  temp_file_with_ctcf_name = tempLoc + "temp_file_with_ctcf_name.bed"
-  temp_file_wo_ctcf_name = tempLoc + "temp_file_wo_ctcf_name.bed"
+  temp_file_with_and_wo_ctcf_name = temporary_location + "temp_file_with_and_wo_ctcf_name.bed"
+  temp_file_with_ctcf_name = temporary_location + "temp_file_with_ctcf_name.bed"
+  temp_file_wo_ctcf_name = temporary_location + "temp_file_wo_ctcf_name.bed"
   writing_extended_anchors(largest_length_half, chrom_list, chrom_dict, loop_file_name, temp_file_with_and_wo_ctcf_name, temp_file_with_ctcf_name, temp_file_wo_ctcf_name)
 
   # Sort bed files
@@ -114,11 +101,11 @@ def extend_anchors(largest_length_half, loop_file_name, chrom_sizes_file_name, t
   sort_bed_file(temp_file_wo_ctcf_name, temp_file_wo_ctcf_name_bed)
 
   # Bed to Bam files
-  temp_file_with_and_wo_ctcf_name_bam = tempLoc + "temp_file_with_and_wo_ctcf_name.bed"
+  temp_file_with_and_wo_ctcf_name_bam = temporary_location + "temp_file_with_and_wo_ctcf_name.bed"
   bed_to_bam(output_file_with_and_wo_ctcf_name_bed, chrom_sizes_file_name, temp_file_with_and_wo_ctcf_name_bam)
-  temp_file_with_ctcf_name_bam = tempLoc + "temp_file_with_ctcf_name_bam.bed"
+  temp_file_with_ctcf_name_bam = temporary_location + "temp_file_with_ctcf_name_bam.bed"
   bed_to_bam(temp_file_with_ctcf_name_bed, chrom_sizes_file_name, temp_file_with_ctcf_name_bam)
-  temp_file_wo_ctcf_name_bam = tempLoc + "temp_file_wo_ctcf_name_bam.bed"  
+  temp_file_wo_ctcf_name_bam = temporary_location + "temp_file_wo_ctcf_name_bam.bed"  
   bed_to_bam(temp_file_wo_ctcf_name_bed, chrom_sizes_file_name, temp_file_wo_ctcf_name_bam)
 
   # Sort bam files
@@ -133,11 +120,4 @@ def extend_anchors(largest_length_half, loop_file_name, chrom_sizes_file_name, t
   index_bam_file(file_with_and_wo_ctcf_name_bam)
   index_bam_file(file_with_ctcf_name_bam)
   index_bam_file(file_wo_ctcf_name_bam)
-
-###################################################################################################
-# Execution
-###################################################################################################
-
-extend_anchors(largestLengthHalf, loopFileName, chromSizesFileName, tempLoc, outputFileWithAndWoCtcfName, outputFileWithCtcfName, outputFileWoCtcfName)
-
 

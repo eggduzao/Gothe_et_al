@@ -1,57 +1,70 @@
-Gothe et al. Spatial chromosome folding and active transcription drive DNA fragility and formation of oncogenic MLL translocations.
+# ** Gothe et al. Spatial chromosome folding and active transcription drive DNA fragility and formation of oncogenic MLL translocations. **
 =================================
 
-# TODO - Make readme.
-RGT is an open source python library for analysis of regulatory
-genomics. RGT is programmed in an oriented object fashion and its core
-classes provide functionality for handling regulatory genomics data.
+This repository contains the * in house * computational scripts in python and R that were used in the study by Gothe et al.:
+Spatial chromosome folding and active transcription drive DNA fragility and formation of oncogenic MLL translocations.
 
-The toolbox is made of a `core library <http://www.regulatory-genomics.org/rgt/>`__ and several tools:
+The scripts were turned into command-line tools and can be executed in a Unix and MAC OS environments.
+This Mini-tutorial provides a Quick-Start to use the available command-line tools.
 
-* `THOR <http://www.regulatory-genomics.org/thor-2/>`__: ChIP-Seq differential peak caller, replaces
-  `ODIN <http://www.regulatory-genomics.org/odin-2/>`__
-
-* `Motif Analysis <http://www.regulatory-genomics.org/motif-analysis/>`__: TBFS match and enrichment
-
-* `HINT <http://www.regulatory-genomics.org/hint/>`__: DNase-Seq footprinting method
-
-* `RGT-Viz <http://www.regulatory-genomics.org/rgt-viz/>`__: Visualization tool
-
-* `TDF <http://www.regulatory-genomics.org/tdf/>`__: DNA/RNA triplex domain finder
-
-Installation
+## Installation
 ============
 
-The quickest and easiest way to get RGT is to to use pip:
+###### Dependencies
 
-::
+The first step is to have Python and R installed. Most Unix and MAC distributions already have this
+programming languagess installed. If you do not have them installed please visit:
+- https://www.python.org/
+- https://www.r-project.org/
 
-    pip install --user RGT
+When installing this software, all its dependencies will be automatically installed.
+If you encounter any problem. Please find bellow you will find the quickest way to install all the dependencies:
 
-This will install the full RGT suite with all dependencies.
-If you have errors, this is usually due to three dependencies
-that you can install beforehand:
+```
+curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+python get-pip.py
+python -m pip install --user numpy scipy matplotlib ipython jupyter pandas sympy nose
+pip install --user pysam
+pip install --user pyBigWig
+```
 
-::
+###### Gothe et al toolkit
 
-    pip install --user cython numpy scipy
+To install this software simply type:
 
-Alternatively, you can clone this repository:
+```
+curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+python get-pip.py
+pip install --user XXXXXXXXX
+```
 
-::
+## Usage Example
+============
 
-    git clone https://github.com/CostaLab/reg-gen.git
+In this section we will follow step by step the logic of this toolkit to
+create the Figure 4C of the paper (and its corresponding numeric table; which can be easily
+opened in Excel to make further plots). Depending on the versions of the dependencies installed,
+minor numerical fluctuations are expected, since dynamic programming was used at some stages to
+accelerate the execution. However, this will not modify the general trend of such a Figure.
 
-or download a specific
-`release <https://github.com/CostaLab/reg-gen/releases>`__, then proceed
-to manual installation:
+The tool associated with this Figure is called ** corr-dsb-dist-exp ** . By calling from the command-line:
 
-::
+```
+corr-dsb-dist-exp --help
+```
 
-    cd reg-gen
-    python setup.py install --user
+You will see the list of arguments that this tool requires:
+- max-dist: 
+- alias-file: 
+- chrom-sizes: 
+- genes-file: 
+- expression-file: 
+- dsb-file: 
+- distance-file: 
+- temp-loc: 
+- output-location: 
 
-Detailed installation instructions and basic problem solving can be
-found at:
 
-http://www.regulatory-genomics.org/rgt/download-installation
+
+corr-dsb-dist-exp --max-dist 50 --alias-file /Users/egg/Projects/Test/Input/alias_hg19.txt --chrom-sizes /Users/egg/Projects/Test/Input/chrom.sizes.hg19.txt --genes-file /Users/egg/Projects/Test/Input/all_genes.bed --expression-file /Users/egg/Projects/Test/Input/K562_expression.txt --dsb-file /Users/egg/Projects/Test/Input/K562_ETO.bam --distance-file /Users/egg/Projects/Test/Input/K562_loops.txt --temp-loc /Users/egg/Projects/Test/Temp/ --output-location /Users/egg/Projects/Test/Output/
+

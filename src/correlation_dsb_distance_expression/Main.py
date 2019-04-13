@@ -15,6 +15,11 @@ warnings.filterwarnings("ignore")
 # Internal
 from src import __version__
 from ..Util import PassThroughOptionParser
+from createDistanceTable import create_table
+from extendAnchors import extend_anchors
+from processDsbFile import create_bam_file
+from processExpFile import create_exp_file
+from processHicFile import create_hic_file
 
 # External
 import numpy as np
@@ -101,10 +106,9 @@ def create_mll_dictionary(alias_dict, mll_genes_file_name):
   # Return objects
   return mll_dict
 
-def fetch_expression_percentiles(expression_file_name):
+def fetch_expression(expression_file_name):
 
   # Fetching expression for all genes
-  expList = []
   exp_dict = dict()
   expressionFile = open(expression_file_name, "rU")
   for line in expressionFile:
@@ -114,13 +118,18 @@ def fetch_expression_percentiles(expression_file_name):
     except Exception: gene = expGene.upper()
     expvalue = float(ll[1])
     exp_dict[gene] = expvalue
-    expList.append(expvalue)
   expressionFile.close()
 
   # Return objects
   return exp_dict
 
-def create_multi_table(max_dist, alias_file_name, genes_file_name, exp_file_name, dsb_file_name, dist_file_name, output_file_name):
+def create_multi_table(max_dist, alias_file_name, genes_file_name, exp_file_name, dsb_file_name, dist_file_name, output_location):
+
+  # Global Parameters
+  seed(111)
+  promExt = 2000
+  command = "mkdir -p "+output_location
+  os.system(command)
 
   # Allowed chromosomes
   chrom_list = ["chr"+str(e) for e in range(1,23)+["X"]]
@@ -129,7 +138,7 @@ def create_multi_table(max_dist, alias_file_name, genes_file_name, exp_file_name
   alias_dict = read_alias_dictionary(alias_file_name)
 
   # Fetch expression
-  exp_dict = fetch_expression_percentiles(expression_file_name)
+  exp_dict = fetch_expression(exp_file_name)
 
   # Fetch distance
   dist_dict = create_distance_dictionary(dist_file_name)
@@ -142,6 +151,7 @@ def create_multi_table(max_dist, alias_file_name, genes_file_name, exp_file_name
     exit(1)
 
   # Output file
+  output_file_name = output_location + "table.txt"
   outputFile = open(output_file_name, "w")
   outputFile.write("\t".join(["GENE", "DISTANCE", "EXPRESSION", "DSB"])+"\n")
 
@@ -151,22 +161,23 @@ def create_multi_table(max_dist, alias_file_name, genes_file_name, exp_file_name
     # Initialization
     ll = line.strip().split("\t")
     try: chrom = ll[0]; p1 = int(ll[1]); p2 = int(ll[2]); gene = ll[3].upper(); score = ll[4]; strand = ll[5]
-    except Exception:
-      print("ERROR: The genes file must be a tab-separated bed file with columns: chromosome, start, end, gene_name, score (not used), strand")
+    except Exception: print("ERROR: The genes file must be a tab-separated bed file with columns: chromosome, start, end, gene_name, score (not used), strand")
     try: gene = alias_dict[gene]
     except Exception: pass
     if(chrom not in chrom_list): continue
     if(strand == "+"): region = [chrom, p1 - promExt, p1]
     else: region = [chrom, p2, p2 + promExt]
 
+    print(gene)
+
     # Fetch distance
     try: distance = dist_dict[gene]
-    except Exception: distance = "NA"
-    if(distance >= max_dist): distance = "NA"
+    except Exception: continue
+    if(distance >= max_dist): continue
 
     # Fetch expression 1
     try: exp = exp_dict[alias_dict[gene]]
-    except Exception: pass
+    except Exception: continue
     if(exp <= 0): continue
     if(distance <= 0): dfactor = 0.9
     else: dfactor = distance
@@ -178,21 +189,19 @@ def create_multi_table(max_dist, alias_file_name, genes_file_name, exp_file_name
     if(dsbFile):
       if(strand == "+"):
         tss1 = p1 - promExt
-        tss2 = p1
+        tss2 = p1s
       elif(strand == "-"):
         tss1 = p2
         tss2 = p2 + promExt
       dsbCount = dsbFile.count(chrom, tss1, tss2)
       dsbCount = (exp + (dsbCount/10.) + (random()*3.)) / 1000.
-    else: dsbCount = "NA"
+    else: continue
 
     # Fetch expression 2
     try:
       jitt = 50 * random() * ((100 * dsbCount)**2)
       exp = exp + jitt
-    except Exception:
-      if(exp <= 0): continue
-      else: pass
+    except Exception: continue
 
     # Writing to file
     outputFile.write("\t".join([str(e) for e in [gene, distance, exp, dsbCount]])+"\n")
@@ -218,9 +227,6 @@ def main():
   ###################################################################################################
   # Processing Input Arguments
   ###################################################################################################
-
-  # Initializing ErrorHandler
-  error_handler = ErrorHandler()
 
   # Parameters
   usage_message = ("\n--------------------------------------------------\n"
@@ -270,13 +276,10 @@ def main():
   parser.add_option("--dsb-file", dest="dsb_file_name", type="string", metavar="FILE", default=None, help=("Placeholder.")) # 6
   parser.add_option("--distance-file", dest="dist_file_name", type="string", metavar="FILE", default=None, help=("Placeholder.")) # 7
   parser.add_option("--temp-loc", dest="temp_loc", type="string", metavar="FILE", default=None, help=("Placeholder.")) # 8
-  parser.add_option("--output-file", dest="output_file_name", type="string", metavar="FILE", default=None, help=("Placeholder.")) # 9
+  parser.add_option("--output-location", dest="output_location", type="string", metavar="PATH", default=None, help=("Placeholder.")) # 9
 
   # Processing Options
   options, arguments = parser.parse_args()
-  if len(arguments) < 9:
-    print(usage_message)
-    exit(1)
 
   # General options
   max_dist = options.max_dist
@@ -287,7 +290,7 @@ def main():
   dsb_file_name = options.dsb_file_name
   dist_file_name = options.dist_file_name
   temp_loc = options.temp_loc
-  output_file_name = options.output_file_name
+  output_location = options.output_location
 
   # Argument error
   argument_error_message = "ERROR: Please provide all arguments."
@@ -299,14 +302,7 @@ def main():
   if(not dsb_file_name): print(argument_error_message)
   if(not dist_file_name): print(argument_error_message)
   if(not temp_loc): print(argument_error_message)
-  if(not output_file_name): print(argument_error_message)
-
-  # Global Parameters
-  seed(111)
-  promExt = 2000
-  outLoc = "/".join(output_file_name.split("/")[:-1]) + "/"
-  command = "mkdir -p "+outLoc
-  os.system(command)
+  if(not output_location): print(argument_error_message)
 
   ###################################################################################################
   # Execution
@@ -327,8 +323,7 @@ def main():
   dsb_bam_file_name = extracted_dsb_file_name
   if(extracted_dsb_file_name.split(".")[-1] == "bed"):
     dsb_bam_file_name = temp_loc + "dsb_bam_file_name.bam"
-    command = "python 1_processDsbFile.py "+" ".join([chrom_sizes_file_name, extracted_dsb_file_name, temp_loc, dsb_bam_file_name])
-    os.system(command)
+    create_bam_file(chrom_sizes_file_name, extracted_dsb_file_name, temp_loc, dsb_bam_file_name)
   elif(extracted_dsb_file_name.split(".")[-1] == "bam"): pass
   else: print("ERROR: Supported formats for the expression file are: .bam or .bed")
 
@@ -347,8 +342,7 @@ def main():
   exp_list_file_name = extracted_exp_file_name
   if(extracted_exp_file_name.split(".")[-1] == "bed" or extracted_exp_file_name.split(".")[-1] == "bam"):
     exp_list_file_name = temp_loc + "dsb_bam_file_name.bam"
-    command = "python 2_processExpFile.py "+" ".join([alias_file_name, chrom_sizes_file_name, genes_file_name, extracted_exp_file_name, exp_list_file_name])
-    os.system(command)
+    create_exp_file(alias_file_name, chrom_sizes_file_name, genes_file_name, extracted_exp_file_name, exp_list_file_name)
   elif(extracted_exp_file_name.split(".")[-1] == "txt"): pass
   else: print("ERROR: Supported formats for the expression file are: .bam, .bed or .txt")
   
@@ -366,17 +360,15 @@ def main():
   # Correcting distances file to list (supported formats)
   dist_list_file_name = extracted_dist_file_name
   if(extracted_dist_file_name.split(".")[-1] == "txt"):
-    extList = [str(e*1000) for e in range(0, max_dist)]
+    extList = [str(e*1000) for e in range(0, max_dist+1)]
     for ext in extList:
       dist_w_list_file_name = temp_loc + "anchors_with_ctcf_" + ext
       dist_wo_list_file_name = temp_loc + "anchors_wo_ctcf_" + ext
       dist_wwo_list_file_name = temp_loc + "anchors_with_and_wo_ctcf_" + ext
-      command = "python 4_extendAnchors.py "+" ".join([ext, extracted_dist_file_name, chrom_sizes_file_name, temp_loc, dist_wwo_list_file_name, dist_w_list_file_name, dist_wo_list_file_name])
-      os.system(command)
-    command = "python 4_createDistanceTable.py "+" ".join([alias_file_name, genes_file_name, temp_loc + "anchors_with_ctcf", dist_list_file_name])
-    os.system(command)
+      extend_anchors(int(ext), extracted_dist_file_name, chrom_sizes_file_name, temp_loc, dist_wwo_list_file_name, dist_w_list_file_name, dist_wo_list_file_name)
+    create_table(max_dist, alias_file_name, genes_file_name, temp_loc + "anchors_with_ctcf", dist_list_file_name)
   else: print("ERROR: Supported formats for the expression file are: .txt (CTCF-annotated HiCCUPScontacts calling)")
      
   # Creating table
-  create_multi_table(max_dist, alias_file_name, genes_file_name, exp_list_file_name, dsb_bam_file_name, dist_list_file_name, output_file_name)
+  create_multi_table(max_dist, alias_file_name, genes_file_name, exp_list_file_name, dsb_bam_file_name, dist_list_file_name, output_location)
 

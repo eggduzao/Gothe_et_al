@@ -10,19 +10,6 @@ from copy import deepcopy
 from pysam import Samfile
 from random import seed, random, randint
 
-# Input
-aliasFileName = sys.argv[1]
-allGenesFileName = sys.argv[2]
-anchorAllFilePrefix = sys.argv[3]
-outputFileName = sys.argv[4]
-
-# Parameters
-seed(111)
-promExt = 2000
-outLoc = "/".join(outputFileName.split("/")[:-1]) + "/"
-command = "mkdir -p "+outLoc
-os.system(command)
-
 ###################################################################################################
 # Functions
 ###################################################################################################
@@ -49,7 +36,14 @@ def read_alias_dictionary(alias_file_name):
   # Return objects
   return alias_dict
 
-def create_table(alias_file_name, all_genes_file_name, anchor_all_file_prefix, output_file_name):
+def create_table(max_dist, alias_file_name, all_genes_file_name, anchor_all_file_prefix, output_file_name):
+
+  # Parameters
+  seed(111)
+  promExt = 2000
+  outLoc = "/".join(output_file_name.split("/")[:-1]) + "/"
+  command = "mkdir -p "+outLoc
+  os.system(command)
 
   # Allowed chromosomes
   chrom_list = ["chr"+str(e) for e in range(1,23)+["X"]]
@@ -75,8 +69,13 @@ def create_table(alias_file_name, all_genes_file_name, anchor_all_file_prefix, o
   outputFile = open(output_file_name, "w")
   outputFile.write("\t".join(["GENE", "DIST"])+"\n")
 
-  # Dividing the samfiles in 4 batches
-  batchVec = [[0, 200], [201, 400], [401, 600], [601, 800], [801, 1000]]
+  # Dividing the samfiles in 200-bins batches
+  batchVec = []
+  for i in range(0, max_dist, 200):
+    if(i != 0): b0 = i+1
+    else: b0 = 0
+    b1 = min(max_dist, i+200)
+    batchVec.append([b0, b1])
   for b in batchVec:
  
     # Opening anchor files
@@ -114,10 +113,4 @@ def create_table(alias_file_name, all_genes_file_name, anchor_all_file_prefix, o
     for e in anchorFileList: e.close()
 
   outputFile.close()
-
-###################################################################################################
-# Creating table
-###################################################################################################
-
-create_table(aliasFileName, allGenesFileName, anchorAllFilePrefix, outputFileName)
 

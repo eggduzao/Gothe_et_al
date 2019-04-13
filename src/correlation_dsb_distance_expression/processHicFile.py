@@ -6,20 +6,7 @@
 # Import
 import os
 import sys
-sys.path = ["/home/egusmao/.local/lib/python2.7/site-packages"] + sys.path
 from pysam import Samfile
-
-# Input
-chromSizesFileName = sys.argv[1]
-ctcfBamPeaksFileName = sys.argv[2]
-ctcfBamMotifsFileName = sys.argv[3]
-loopsFileName = sys.argv[4]
-loopsHiccupsOutFileName = sys.argv[5]
-
-# Parameters
-outLoc = "/".join(loopsHiccupsOutFileName.split("/")[:-1]) + "/"
-command = "mkdir -p "+outLoc
-os.system(command)
 
 ###################################################################################################
 # Functions
@@ -124,6 +111,11 @@ def write_hiccups_file(hic_header, loop_list, ctcf_peaks_file, ctcf_motifs_file,
   
 def create_hic_file(chrom_sizes_file_name, ctcf_peaks_file_name, ctcf_motifs_file_name, loops_file_name, loops_hiccups_output_file_name):
 
+  # Parameters
+  outLoc = "/".join(loops_hiccups_output_file_name.split("/")[:-1]) + "/"
+  command = "mkdir -p "+outLoc
+  os.system(command)
+
   # Chrom sizes
   chrom_list, chrom_dict = read_chromosome_sizes(chrom_sizes_file_name)
 
@@ -148,11 +140,4 @@ def create_hic_file(chrom_sizes_file_name, ctcf_peaks_file_name, ctcf_motifs_fil
   if(os.path.isfile(ctcf_peaks_file_name) and os.path.isfile(ctcf_motifs_file_name)):
     ctcf_peaks_file.close()
     ctcf_motifs_file.close()
-
-###################################################################################################
-# Execution
-###################################################################################################
-
-create_hic_file(chromSizesFileName, ctcfBamPeaksFileName, ctcfBamMotifsFileName, loopsFileName, loopsHiccupsOutFileName)
-
 

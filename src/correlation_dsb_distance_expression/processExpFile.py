@@ -8,18 +8,6 @@ import os
 import sys
 from pysam import Samfile
 
-# Input
-aliasFileName = sys.argv[1]
-chromSizesFileName = sys.argv[2]
-geneLocationFileName = sys.argv[3]
-expFileName = sys.argv[4]
-outputFileName = sys.argv[5]
-
-# Parameters
-outLoc = "/".join(outputFileName.split("/")[:-1]) + "/"
-command = "mkdir -p "+outLoc
-os.system(command)
-
 ###################################################################################################
 # Functions
 ###################################################################################################
@@ -115,6 +103,10 @@ def write_expression_file(exp_dict, output_file_name):
   
 def create_exp_file(alias_file_name, chrom_sizes_file_name, gene_location_file_name, exp_file_name, output_file_name):
 
+  outLoc = "/".join(output_file_name.split("/")[:-1]) + "/"
+  command = "mkdir -p "+outLoc
+  os.system(command)
+
   # Chrom sizes
   chrom_list, chrom_dict = read_chromosome_sizes(chrom_sizes_file_name)
 
@@ -130,10 +122,4 @@ def create_exp_file(alias_file_name, chrom_sizes_file_name, gene_location_file_n
 
   # Writing expression
   write_expression_file(exp_dict, output_file_name)
-
-###################################################################################################
-# Execution
-###################################################################################################
-
-create_exp_file(aliasFileName, chromSizesFileName, geneLocationFileName, expFileName, outputFileName)
 

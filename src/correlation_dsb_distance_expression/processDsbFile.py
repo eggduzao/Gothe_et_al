@@ -7,19 +7,6 @@
 import os
 import sys
 
-# Input
-chromSizesFileName = sys.argv[1]
-dsbBedFileNameList = sys.argv[2].split(",")
-tempLocation = sys.argv[3]
-dsbBamFileName = sys.argv[4]
-
-# Parameters
-command = "mkdir -p "+tempLocation
-os.system(command)
-outLoc = "/".join(dsbBamFileName.split("/")[:-1]) + "/"
-command = "mkdir -p "+outLoc
-os.system(command)
-
 ###################################################################################################
 # Functions
 ###################################################################################################
@@ -61,6 +48,13 @@ def merge_bam(input_file_name_1, input_file_name_2, output_file_name):
 
 def create_bam_file(chrom_sizes_file_name, dsb_bed_file_list, temporary_location, dsb_bam_file_name):
 
+  # Parameters
+  command = "mkdir -p "+temporary_location
+  os.system(command)
+  outLoc = "/".join(dsb_bam_file_name.split("/")[:-1]) + "/"
+  command = "mkdir -p "+outLoc
+  os.system(command)
+
   # Chromosomes dictionary
   chrom_list = ["chr"+str(e) for e in range(1,23)+["X"]]
 
@@ -85,11 +79,4 @@ def create_bam_file(chrom_sizes_file_name, dsb_bed_file_list, temporary_location
 
   command = "rm -rf "+temporary_location
   os.system(command)
-
-###################################################################################################
-# Execution
-###################################################################################################
-
-create_bam_file(chromSizesFileName, dsbBedFileNameList, tempLocation, dsbBamFileName)
-
 
