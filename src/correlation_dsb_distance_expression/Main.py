@@ -341,7 +341,7 @@ def main():
   # Correcting expression file to list (supported formats)
   exp_list_file_name = extracted_exp_file_name
   if(extracted_exp_file_name.split(".")[-1] == "bed" or extracted_exp_file_name.split(".")[-1] == "bam"):
-    exp_list_file_name = temp_loc + "dsb_bam_file_name.bam"
+    exp_list_file_name = temp_loc + "exp_list_file_name.txt"
     create_exp_file(alias_file_name, chrom_sizes_file_name, genes_file_name, extracted_exp_file_name, exp_list_file_name)
   elif(extracted_exp_file_name.split(".")[-1] == "txt"): pass
   else: print("ERROR: Supported formats for the expression file are: .bam, .bed or .txt")
@@ -366,6 +366,7 @@ def main():
       dist_wo_list_file_name = temp_loc + "anchors_wo_ctcf_" + ext
       dist_wwo_list_file_name = temp_loc + "anchors_with_and_wo_ctcf_" + ext
       extend_anchors(int(ext), extracted_dist_file_name, chrom_sizes_file_name, temp_loc, dist_wwo_list_file_name, dist_w_list_file_name, dist_wo_list_file_name)
+    dist_list_file_name = temp_loc + "dist_list_file_name.txt"
     create_table(max_dist, alias_file_name, genes_file_name, temp_loc + "anchors_with_ctcf", dist_list_file_name)
   else: print("ERROR: Supported formats for the expression file are: .txt (CTCF-annotated HiCCUPScontacts calling)")
      
