@@ -168,8 +168,6 @@ def create_multi_table(max_dist, alias_file_name, genes_file_name, exp_file_name
     if(strand == "+"): region = [chrom, p1 - promExt, p1]
     else: region = [chrom, p2, p2 + promExt]
 
-    print(gene)
-
     # Fetch distance
     try: distance = dist_dict[gene]
     except Exception: continue
@@ -189,7 +187,7 @@ def create_multi_table(max_dist, alias_file_name, genes_file_name, exp_file_name
     if(dsbFile):
       if(strand == "+"):
         tss1 = p1 - promExt
-        tss2 = p1s
+        tss2 = p1
       elif(strand == "-"):
         tss1 = p2
         tss2 = p2 + promExt
