@@ -209,6 +209,10 @@ def create_multi_table(max_dist, alias_file_name, genes_file_name, exp_file_name
   allGenesFile.close()
   outputFile.close()
 
+  # Creating plots
+  output_dist_dsb_exp = output_file_name = output_location + "dist_dsb_exp.pdf"
+  command = "Rscript 3Dplot.R "+" ".join([str(max_dist), output_file_name, output_dist_dsb_exp])
+
 ###################################################################################################
 # Main
 ###################################################################################################

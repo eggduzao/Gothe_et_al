@@ -1,6 +1,4 @@
 # **Gothe et al. Spatial chromosome folding and active transcription drive DNA fragility and formation of oncogenic MLL translocations.**
-=================================
-
 
 This repository contains the *in house* computational scripts in python and R that were used in the study by Gothe et al.:
 Spatial chromosome folding and active transcription drive DNA fragility and formation of oncogenic MLL translocations.
@@ -8,13 +6,7 @@ Spatial chromosome folding and active transcription drive DNA fragility and form
 The scripts were turned into command-line tools and can be executed in a Unix and MAC OS environments.
 This Mini-tutorial provides a Quick-Start to use the available command-line tools.
 
-
-
-### Installation
-=================================
-
-
-###### Dependencies
+## Installation
 
 The first step is to have Python and R installed. Most Unix and MAC distributions already have this
 programming languagess installed. If you do not have them installed please visit:
@@ -22,6 +14,8 @@ programming languagess installed. If you do not have them installed please visit
 - https://www.python.org/
 
 - https://www.r-project.org/
+
+### Dependencies
 
 When installing this software, all its dependencies will be automatically installed.
 If you encounter any problem. Please find bellow you will find the quickest way to install all the dependencies:
@@ -34,7 +28,7 @@ pip install --user pysam
 pip install --user pyBigWig
 ```
 
-###### Gothe et al toolkit
+### Gothe et al toolkit
 
 To install this software simply type:
 
@@ -44,10 +38,7 @@ python get-pip.py
 pip install --user XXXXXXXXX
 ```
 
-
-
-### Usage Example
-=================================
+## Usage Example
 
 In this section we will follow step by step the logic of this toolkit to
 create the Figure 4C of the paper (and its corresponding numeric table; which can be easily
