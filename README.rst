@@ -1,7 +1,7 @@
 # ** Gothe et al. Spatial chromosome folding and active transcription drive DNA fragility and formation of oncogenic MLL translocations. **
 =================================
 
-This repository contains the * in house * computational scripts in python and R that were used in the study by Gothe et al.:
+This repository contains the *in house* computational scripts in python and R that were used in the study by Gothe et al.:
 Spatial chromosome folding and active transcription drive DNA fragility and formation of oncogenic MLL translocations.
 
 The scripts were turned into command-line tools and can be executed in a Unix and MAC OS environments.
