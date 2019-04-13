@@ -1,4 +1,4 @@
-#**Gothe et al. Spatial chromosome folding and active transcription drive DNA fragility and formation of oncogenic MLL translocations.**
+# **Gothe et al. Spatial chromosome folding and active transcription drive DNA fragility and formation of oncogenic MLL translocations.**
 =================================
 
 
@@ -10,11 +10,11 @@ This Mini-tutorial provides a Quick-Start to use the available command-line tool
 
 
 
-##Installation
+### Installation
 =================================
 
 
-######Dependencies
+###### Dependencies
 
 The first step is to have Python and R installed. Most Unix and MAC distributions already have this
 programming languagess installed. If you do not have them installed please visit:
@@ -26,29 +26,27 @@ programming languagess installed. If you do not have them installed please visit
 When installing this software, all its dependencies will be automatically installed.
 If you encounter any problem. Please find bellow you will find the quickest way to install all the dependencies:
 
-```curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
-
+```
+curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
 python get-pip.py
-
 python -m pip install --user numpy scipy matplotlib ipython jupyter pandas sympy nose
-
 pip install --user pysam
+pip install --user pyBigWig
+```
 
-pip install --user pyBigWig```
-
-######Gothe et al toolkit
+###### Gothe et al toolkit
 
 To install this software simply type:
 
-```curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
-
+```
+curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
 python get-pip.py
+pip install --user XXXXXXXXX
+```
 
-pip install --user XXXXXXXXX```
 
 
-
-##Usage Example
+### Usage Example
 =================================
 
 In this section we will follow step by step the logic of this toolkit to
@@ -59,26 +57,20 @@ accelerate the execution. However, this will not modify the general trend of suc
 
 The tool associated with this Figure is called **corr-dsb-dist-exp** . By calling from the command-line:
 
-```corr-dsb-dist-exp --help```
+```
+corr-dsb-dist-exp --help
+```
 
 You will see the list of arguments that this tool requires:
 
 - max-dist: 
-
 - alias-file: 
-
 - chrom-sizes: 
-
 - genes-file: 
-
 - expression-file: 
-
 - dsb-file: 
-
 - distance-file: 
-
 - temp-loc: 
-
 - output-location: 
 
 
