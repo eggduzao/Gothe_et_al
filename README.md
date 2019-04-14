@@ -35,7 +35,10 @@ To install this software simply type:
 ```
 curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
 python get-pip.py
-pip install --user XXXXXXXXX
+cd
+git clone https://github.com/eggduzao/Gothe_et_al.git
+cd Gothe_et_al
+pip install --user .
 ```
 
 ## Usage Example
@@ -59,15 +62,15 @@ corr-dsb-dist-exp --help
 
 You will see the list of arguments that this tool requires:
 
-- max-dist: The maximum 
-- alias-file: 
-- chrom-sizes: 
-- genes-file: 
-- expression-file: 
-- dsb-file: 
-- distance-file: 
-- temp-loc: 
-- output-location: 
+- max-dist: The maximum distance a gene can be from its nearest loop anchor. You should set this to an integer twice as much as you expect in the final plot.
+- alias-file: The alias file is given with the package and simply contains multiple collected aliases for the same gene.
+- chrom-sizes: This is a tab-separated file containing the chromosome names and their lengths.
+- genes-file: A bed file containing all genes in which the analysis will be based on.
+- expression-file: It can be a tab-separated file containing the gene names and their expression; or a bam file in which the expression will be calculated.
+- dsb-file: A bed or a bam file containing the double strand breaks' positions.
+- distance-file: At the moment, the tool only supports loops called from HiCCUPS. CTCF annotation is not required but highly recommended as in Rao et al.'s file in the example bellow.
+- temp-loc: A path in which the program will store all temporary files. It can be erased after the execution; however the program itself won't erase this path as it might be useful for troubleshooting.
+- output-location: The output location in which the tables and figures will be created in.
 
 To run the tool you can simply create *input*, *output* and *temporary* folders and
 copy or download the relevant data to the input folder.
@@ -79,9 +82,18 @@ Supposing gothe_dir is the directory of the repository
 
 ```
 mkdir -p ~/input/ ~/output/ ~/temp/
-cd ~/input/
-
+cd gothe_dir
+ln -s gothe_dir/data/genome/alias_hg19.txt ~/input/alias_hg19.txt
+ln -s gothe_dir/data/genome/all_genes.bed ~/input/all_genes.bed
+ln -s gothe_dir/data/genome/chrom.sizes.hg19.txt ~/input/chrom.sizes.hg19.txt
+ln -s gothe_dir/data/expression/K562_expression.txt ~/input/K562_expression.txt
+curl ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE63nnn/GSE63525/suppl/GSE63525_K562_HiCCUPS_looplist_with_motifs.txt.gz -o ~/input/K562_loops.txt
 ```
 
-corr-dsb-dist-exp --max-dist 50 --alias-file /Users/egg/Projects/Test/Input/alias_hg19.txt --chrom-sizes /Users/egg/Projects/Test/Input/chrom.sizes.hg19.txt --genes-file /Users/egg/Projects/Test/Input/all_genes.bed --expression-file /Users/egg/Projects/Test/Input/K562_expression.txt --dsb-file /Users/egg/Projects/Test/Input/K562_ETO.bam --distance-file /Users/egg/Projects/Test/Input/K562_loops.txt --temp-loc /Users/egg/Projects/Test/Temp/ --output-location /Users/egg/Projects/Test/Output/
+Also, please log in the password-protected GEO repository and place the sBLISS file named *GSM3444989_K562_ETO.bed.gz* in ~/input/
 
+Finally, you will be able to create the Figures by applying the following command:
+
+```
+corr-dsb-dist-exp --max-dist 200 --alias-file ~/input/alias_hg19.txtt --chrom-sizes ~/input/chrom.sizes.hg19.txt --genes-file ~/input/all_genes.bed --expression-file ~/input/K562_expression.txt --dsb-file ~/input/GSM3444989_K562_ETO.bed.gz --distance-file ~/input/K562_loops.txt --temp-loc ~/temp/ --output-location ~/output/
+```

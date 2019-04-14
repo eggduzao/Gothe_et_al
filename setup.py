@@ -222,7 +222,7 @@ for tool_option in options.param_tools:
         external_scripts.append(e)
 
 # Fetching Additional Structural Files
-readme_file_name = path.join(path.dirname(path.abspath(__file__)), "README.rst")
+readme_file_name = path.join(path.dirname(path.abspath(__file__)), "README.md")
 
 # Fetching Long Description
 readme_file = open(readme_file_name, "r")
@@ -245,5 +245,6 @@ setup(name="GotheEtAl",
       entry_points=current_entry_points,
       install_requires=current_install_requires,
       scripts=external_scripts,
+      include_package_data=True,
       platforms=supported_platforms)
 
