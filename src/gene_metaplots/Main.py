@@ -117,7 +117,6 @@ def main():
   parser.add_option("--nBins", dest="nBins", type="int", metavar="INT", default=15, help=("Placeholder."))
   parser.add_option("--tssExt", dest="tssExt", type="int", metavar="INT", default=3000, help=("Placeholder."))
   parser.add_option("--bamCount", dest="bamCount", type="int", metavar="INT", default=1000000, help=("Placeholder."))
-  parser.add_option("--percentileList", dest="percentileList", type="string", metavar="LIST", default=",".join([str(e) for e in range(100,-1,-20)]), help=("Placeholder."))
   parser.add_option("--aliasFileName", dest="aliasFileName", type="string", metavar="FILE", default=None, help=("Placeholder."))
   parser.add_option("--genesFileName", dest="genesFileName", type="string", metavar="FILE", default=None, help=("Placeholder."))
   parser.add_option("--featurePeakFileName", dest="featurePeakFileName", type="FILE", metavar="FILE", default=None, help=("Placeholder."))
@@ -132,7 +131,7 @@ def main():
   nBins = options.nBins
   tssExt = options.tssExt
   bamCount = options.bamCount
-  percentileList = options.percentileList
+  percentileList = range(100,-1,-1)
   aliasFileName = options.aliasFileName
   genesFileName = options.genesFileName
   featurePeakFileName = options.featurePeakFileName
@@ -178,4 +177,6 @@ def main():
 
   # Creating plot
   plotFileName = ".".join(outputFileName.split(".")[:-1]) + ".pdf"
+  command = "Rscript "+script_path+"correlation.R "+" ".join([str(nBins), outputFileName, plotFileName])
+  os.system(command)
 
