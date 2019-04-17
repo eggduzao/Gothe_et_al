@@ -42,8 +42,8 @@ def index_bam_file(input_file_name):
   command = "samtools index "+input_file_name
   os.system(command)
 
-def merge_bam(input_file_name_1, input_file_name_2, output_file_name):
-  command = "samtools merge "+" ".join([output_file_name, input_file_name_1, input_file_name_2])
+def merge_bam(input_file_name_list, output_file_name):
+  command = "samtools merge "+" ".join([output_file_name]+input_file_name_list)
   os.system(command)
 
 def create_bam_file(chrom_sizes_file_name, dsb_bed_file_list, temporary_location, dsb_bam_file_name):
@@ -60,7 +60,7 @@ def create_bam_file(chrom_sizes_file_name, dsb_bed_file_list, temporary_location
 
   counter = 1
   dsbBamFileNameList = []
-  for dsbBedFileName in dsbBedFileNameList:
+  for dsbBedFileName in dsb_bed_file_list:
 
     properBedFileName = temporary_location + "properBedFileName.bed"
     create_proper_bed_file(dsbBedFileName, chrom_list, temporary_location, properBedFileName)
@@ -73,10 +73,9 @@ def create_bam_file(chrom_sizes_file_name, dsb_bed_file_list, temporary_location
 
     dsbBamFileNameList.append(dsbBamFileName)
 
-  merge_bam(dsbBamFileNameList[0], dsbBamFileNameList[1], dsb_bam_file_name)
+  if(dsbBamFileNameList > 1):
+    merge_bam(dsbBamFileNameList, dsb_bam_file_name)
+  else: dsb_bam_file_name = dsbBamFileNameList[0]
 
   index_bam_file(dsb_bam_file_name)
-
-  command = "rm -rf "+temporary_location
-  os.system(command)
 

@@ -253,7 +253,7 @@ def main():
                    "For more information on the arguments please type:\n"
                    "%prog --help\n\n"
 
-                   "For more information, please refer to the original paper in :\n"
+                   "For more information, please refer to the original paper:\n"
                    "Placeholder.\n\n"
 
                    "For further questions or comments please contact:\n"
@@ -323,31 +323,31 @@ def main():
   # Correcting DSB file to BAM (uncompressing)
   extracted_dsb_file_name = dsb_file_name
   if(dsb_file_name.split(".")[-1] == "gz"):
-    extracted_dsb_file_name = temp_loc + "extracted_dsb_file_name" + dsb_file_name.split(".")[-2]
-    command = "gzip -cd "+dsb_file_name+" "+extracted_dsb_file_name
+    extracted_dsb_file_name = temp_loc + "extracted_dsb_file_name." + dsb_file_name.split(".")[-2]
+    command = "gzip -cd "+dsb_file_name+" > "+extracted_dsb_file_name
     os.system(command)
   elif(dsb_file_name.split(".")[-1] == "zip"):
-    extracted_dsb_file_name = temp_loc + "extracted_dsb_file_name" + dsb_file_name.split(".")[-2]
-    command = "gzip -cd "+dsb_file_name+" "+extracted_dsb_file_name
+    extracted_dsb_file_name = temp_loc + "extracted_dsb_file_name." + dsb_file_name.split(".")[-2]
+    command = "unzip -p "+dsb_file_name+" > "+extracted_dsb_file_name
     os.system(command)
 
   # Correcting DSB file to BAM (supported formats)
   dsb_bam_file_name = extracted_dsb_file_name
   if(extracted_dsb_file_name.split(".")[-1] == "bed"):
     dsb_bam_file_name = temp_loc + "dsb_bam_file_name.bam"
-    create_bam_file(chrom_sizes_file_name, extracted_dsb_file_name, temp_loc, dsb_bam_file_name)
+    create_bam_file(chrom_sizes_file_name, [extracted_dsb_file_name], temp_loc, dsb_bam_file_name)
   elif(extracted_dsb_file_name.split(".")[-1] == "bam"): pass
   else: print("ERROR: Supported formats for the expression file are: .bam or .bed")
 
   # Correcting expression file to list (uncompressing)
   extracted_exp_file_name = exp_file_name
   if(exp_file_name.split(".")[-1] == "gz"):
-    extracted_exp_file_name = temp_loc + "extracted_exp_file_name" + exp_file_name.split(".")[-2]
-    command = "gzip -cd "+exp_file_name+" "+extracted_exp_file_name
+    extracted_exp_file_name = temp_loc + "extracted_exp_file_name." + exp_file_name.split(".")[-2]
+    command = "gzip -cd "+exp_file_name+" > "+extracted_exp_file_name
     os.system(command)
   elif(exp_file_name.split(".")[-1] == "zip"):
-    extracted_exp_file_name = temp_loc + "extracted_exp_file_name" + exp_file_name.split(".")[-2]
-    command = "gzip -cd "+exp_file_name+" "+extracted_exp_file_name
+    extracted_exp_file_name = temp_loc + "extracted_exp_file_name." + exp_file_name.split(".")[-2]
+    command = "unzip -p "+exp_file_name+" > "+extracted_exp_file_name
     os.system(command)
 
   # Correcting expression file to list (supported formats)
@@ -361,12 +361,12 @@ def main():
   # Correcting distances file to list (uncompressing)
   extracted_dist_file_name = dist_file_name
   if(dist_file_name.split(".")[-1] == "gz"):
-    extracted_dist_file_name = temp_loc + "extracted_dist_file_name" + dist_file_name.split(".")[-2]
-    command = "gzip -cd "+dist_file_name+" "+extracted_dist_file_name
+    extracted_dist_file_name = temp_loc + "extracted_dist_file_name." + dist_file_name.split(".")[-2]
+    command = "gzip -cd "+dist_file_name+" > "+extracted_dist_file_name
     os.system(command)
   elif(dist_file_name.split(".")[-1] == "zip"):
-    extracted_dist_file_name = temp_loc + "extracted_dist_file_name" + dist_file_name.split(".")[-2]
-    command = "gzip -cd "+dist_file_name+" "+extracted_dist_file_name
+    extracted_dist_file_name = temp_loc + "extracted_dist_file_name." + dist_file_name.split(".")[-2]
+    command = "unzip -p "+dist_file_name+" > "+extracted_dist_file_name
     os.system(command)
 
   # Correcting distances file to list (supported formats)
