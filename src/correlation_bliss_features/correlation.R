@@ -4,6 +4,7 @@
 ###################################################################################################
 
 # Library
+rm(list=ls())
 library(lattice)
 library(reshape)
 library(plotrix)
@@ -16,10 +17,9 @@ library(ggthemes)
 args <- commandArgs(trailingOnly = TRUE)
 graphWidth = as.numeric(args[1])
 marginX = as.numeric(args[2])
-blissTableFileName = args[3]
-inputTableFileName = args[4]
-outputFileName = args[5]
-outputLocation = args[6]
+inputTableFileName = args[3]
+outputFileName = args[4]
+outputLocation = args[5]
 set.seed(13)
 
 ###################################################################################################
@@ -44,13 +44,10 @@ scatterPlot <- function(vec1, vec2, xLabel, ylabel, outFileName){
   pplot = pplot + geom_point(alpha=0.1) 
   pplot = pplot + xlab(xLabel) 
   pplot = pplot + ylab(ylabel)
-  #pplot = pplot + ggtitle(paste('Spearman = ',round(corrSpearman, digits = 4),' / P < ',round(pValueSpearman, digits = 6),sep=''))
   pplot = pplot + ggtitle(paste('Spearman = ',round(corrSpearman, digits = 4)))
   pplot = pplot + theme_classic()
-  #pplot = pplot + geom_density_2d(aes(fill = ..level..))
   pplot = pplot + stat_density_2d(aes(,fill=..level..), bins=11, geom = "polygon")
   pplot = pplot + scale_fill_gradientn(colours = myPalette(11))
-  #pplot = pplot + coord_cartesian(ylim = c(0, 4.5))
   pplot = pplot + theme(plot.title = element_text(hjust = 0.5))
   ggsave(outFileName, plot=pplot, device = "pdf", dpi = 300, width = 5, height = 5)
 
@@ -113,20 +110,15 @@ spearman <- function(vec1, vec2){
 # Execution
 ###################################################################################################
 
-# Creating blissVec
-blissTable = read.table(blissTableFileName, header = TRUE, sep = "\t")
-blissVec = log10(blissTable[,2])
-
 # Reading features table
 inputTable = read.table(inputTableFileName, header = TRUE, sep = "\t")
-inputTable = inputTable[rev(c(3,5,4,6,1,10,8,9,7,2))]
-#inputTable = inputTable[rev(c(4,11,6,5,13,12,1,9,2,3,10,7,8))]
+blissVec = log10(blissTable[,1])
 
 # Calculating correlations
 featureVec = c()
 randVec = c()
 nameVec = c()
-for(i in 1:ncol(inputTable)){
+for(i in 2:ncol(inputTable)){
   col2 = log10(inputTable[,i])
   nameVec = c(nameVec, colnames(inputTable)[i])
   col3 = sample(blissVec)
@@ -134,11 +126,15 @@ for(i in 1:ncol(inputTable)){
   featureVec = c(featureVec, spearman(blissVec, col2)[1])
   randVec = c(randVec, spearman(col3, col4)[1])
   outFileNameCorrelationPlot = paste(outputLocation,colnames(inputTable)[i],".pdf",sep="")
-  scatterPlot(blissVec, col2, "ETO-Induced DSBs (BLISS Counts)", paste(colnames(table)[i]," Counts",sep=""), outFileNameCorrelationPlot)
+  scatterPlot(blissVec, col2, "DSB Counts", paste(colnames(table)[i]," Counts",sep=""), outFileNameCorrelationPlot)
 }
 
-# Create plot
-print(featureVec)
-linePlot(featureVec, randVec, nameVec, graphWidth, marginX, outputFileName)
+# Reordering table
+featureOrder = order(featureVec, decreasing=TRUE)
+featureVec = featureVec[featureOrder]
+randVec = randVec[featureOrder]
+nameVec = nameVec[featureOrder]
 
+# Create plot
+linePlot(featureVec, randVec, nameVec, graphWidth, marginX, outputFileName)
 

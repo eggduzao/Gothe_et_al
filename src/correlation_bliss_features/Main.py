@@ -6,7 +6,6 @@
 # Python
 import os
 import sys
-# TODO
 from optparse import SUPPRESS_HELP
 import warnings
 warnings.filterwarnings("ignore")
@@ -14,21 +13,18 @@ warnings.filterwarnings("ignore")
 # Internal
 from src import __version__
 from ..Util import PassThroughOptionParser
-# TODO
-
-# External
-# TODO
+from createTable import create_table
 
 """
-corr-dsb-dist-exp
+corr-dsb-feat
 
-This program calculates:
-- Distances from a list of genes to their closest anchors."
-- The expression of these genes."
-- The proportion of double-strand breaks (DSBs) in these genes."
+This program creates scatterplots and lineplots with the correlation of user-defined
+features and DSBs.
 
 Dependencies:
-- 
+- numpy
+- pysam
+- pyBigWig
 
 Authors: Eduardo G. Gusmao.
 """
@@ -37,7 +33,30 @@ Authors: Eduardo G. Gusmao.
 # Functions
 ###################################################################################################
 
-# TODO
+# Uncompressing files
+def uncompressing_files(compressed_file_name, uncompressed_file_name):
+
+  # Taking suffix
+  cc = compressed_file_name.split(".")
+
+  # Uncompressing
+  if(cc[-1] == "gz" or cc[-1] == "tar" or cc[-1] == "zip"):
+    if(cc[-1] == "tar"):
+      command = "tar -O "+compressed_file_name+" > "+uncompressed_file_name
+      os.system(command)
+    if(cc[-2] == "tar"):
+      if(cc[-1] == "gz"):
+        command = "tar -xO "+compressed_file_name+" > "+uncompressed_file_name
+        os.system(command)
+      else: print("ERROR: Unrecognized tarball.")
+    elif(cc[-1] == "gz"):
+      command = "gzip -cd "+dsb_file_name+" > "+uncompressed_file_name
+      os.system(command)
+    elif(cc[-1] == "zip"):
+      command = "unzip -p "+dsb_file_name+" > "+uncompressed_file_name
+      os.system(command)
+    else: print("ERROR: We only support tar.gz, .gz and .zip compressions.")
+
 
 ###################################################################################################
 # Main
@@ -45,7 +64,8 @@ Authors: Eduardo G. Gusmao.
 
 def main():
   """
-  Main function that creates a triple correlation table and plots them using R scripts.
+  Main function that creates scatterplots and lineplots with the correlation of user-defined
+  features and DSBs.
 
   Keyword arguments: None
 
@@ -56,15 +76,10 @@ def main():
   # Processing Input Arguments
   ###################################################################################################
 
-  # Initializing ErrorHandler
-  error_handler = ErrorHandler()
-
   # Parameters
   usage_message = ("\n--------------------------------------------------\n"
-                   "This program calculates:\n"
-                   "- Distances from a list of genes to their closest anchors.\n"
-                   "- The expression of these genes.\n\n"
-                   "- The proportion of double-strand breaks (DSBs) in these genes.\n\n"
+                   "This program creates scatterplots and lineplots with the\n"
+                   "correlation of user-defined features and DSBs.\n\n"
 
                    "The program should be called as:\n"
                    "%prog <args>\n\n"
@@ -72,7 +87,7 @@ def main():
                    "For more information on the arguments please type:\n"
                    "%prog --help\n\n"
 
-                   "For more information, please refer to the original paper in :\n"
+                   "For more information, please refer to the original paper:\n"
                    "Placeholder.\n\n"
 
                    "For further questions or comments please contact:\n"
@@ -99,44 +114,62 @@ def main():
   """
 
   # Input Options
-  parser.add_option("--max-dist", dest="max_dist", type="int", metavar="INT", default=200, help=("Placeholder.")) # 1
-  parser.add_option("--alias-file", dest="alias_file_name", type="string", metavar="FILE", default=None, help=("Placeholder.")) # 2
-  parser.add_option("--genes-file", dest="genes_file_name", type="string", metavar="FILE", default=None, help=("Placeholder.")) # 3
-  parser.add_option("--expression-file", dest="exp_file_name", type="string", metavar="FILE", default=None, help=("Placeholder.")) # 4
-  parser.add_option("--dsb-file", dest="dsb_file_name", type="string", metavar="FILE", default=None, help=("Placeholder.")) # 5
-  parser.add_option("--distance-file", dest="dist_file_name", type="string", metavar="FILE", default=None, help=("Placeholder.")) # 6
-  parser.add_option("--output-file", dest="output_file_name", type="string", metavar="FILE", default=None, help=("Placeholder.")) # 7
+  parser.add_option("--half-ext", dest="half_ext", type="int", metavar="INT", default=500, help=("Placeholder."))
+  parser.add_option("--regions", dest="feature_summit_file_name", type="string", metavar="FILE", default=None, help=("Placeholder."))
+  parser.add_option("--signal-label-list", dest="bam_names", type="string", metavar="NAME_1[,NAME_2,...,NAME_N]", default=None, help=("Placeholder."))
+  parser.add_option("--signal-count-list", dest="bam_counts", type="string", metavar="INT_1[,INT_2,...,INT_N]", default=None, help=("Placeholder."))
+  parser.add_option("--signal-file-list", dest="bam_list", type="string", metavar="FILE_1[,FILE_2,...,FILE_N]", default=None, help=("Placeholder."))
+  parser.add_option("--output-file", dest="output_file_name", type="string", metavar="FILE", default=None, help=("Placeholder."))
 
   # Processing Options
   options, arguments = parser.parse_args()
-  if len(arguments) < 7:
-    print(usage_message)
-    exit(1)
 
   # General options
-  max_dist = options.max_dist
-  alias_file_name = options.alias_file_name
-  genes_file_name = options.genes_file_name
-  exp_file_name = options.exp_file_name
-  dsb_file_name = options.dsb_file_name
-  dist_file_name = options.dist_file_name
+  half_ext = options.half_ext
+  feature_summit_file_name = options.feature_summit_file_name
+  bam_names = options.bam_names
+  bam_counts = options.bam_counts
+  bam_list = options.bam_list
   output_file_name = options.output_file_name
 
   # Argument error
   argument_error_message = "ERROR: Please provide all arguments."
-  if(not max_dist): print(argument_error_message)
-  if(not alias_file_name): print(argument_error_message)
-  if(not genes_file_name): print(argument_error_message)
-  if(not exp_file_name): print(argument_error_message)
-  if(not dsb_file_name): print(argument_error_message)
-  if(not dist_file_name): print(argument_error_message)
+  if(not half_ext): print(argument_error_message)
+  if(not feature_summit_file_name): print(argument_error_message)
+  if(not bam_names): print(argument_error_message)
+  if(not bam_counts): print(argument_error_message)
+  if(not bam_list): print(argument_error_message)
   if(not output_file_name): print(argument_error_message)
 
   ###################################################################################################
   # Execution
   ###################################################################################################
 
-  # TODO
+  # Uncompress feature_summit_file_name
+  feature_summit_file_name_unc = feature_summit_file_name
+  uncompressing_files(feature_summit_file_name, feature_summit_file_name_unc)
 
+  # Uncompress bam_list
+  bam_list_unc = []
+  for bam_file_name in bam_list:
+    bam_file_name_unc = bam_file_name
+    uncompressing_files(bam_file_name, bam_file_name_unc)
+    bam_list_unc.append(bam_file_name_unc)
 
+  # Create table
+  create_table(half_ext, feature_summit_file_name_unc, bam_names, bam_counts, bam_list_unc, output_file_name)
+
+  # Script path
+  script_path = "/".join(os.path.realpath(__file__).split("/")[:-1]) + "/"
+
+  # Creating plot
+  graphWidth = "10"
+  marginX = "9.5"
+  inputTableFileName = output_file_name
+  outputFileName = ".".join(output_file_name.split(".")[:-1]) + ".pdf"
+  outputLocation = "/".join(output_file_name.split("/")[:-1]) + "/scatterplots/"
+  command = "mkdir -p "+outputLocation
+  os.system(command)
+  command = "Rscript "+script_path+"correlation.R "+" ".join([graphWidth, marginX, inputTableFileName, outputFileName, outputLocation])
+  os.system(command)
 

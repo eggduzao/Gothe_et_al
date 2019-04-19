@@ -73,7 +73,7 @@ def create_table(nBins, tssExt, bamCount, percentileList, aliasFileName, genesFi
   chrList = ["chr"+str(e) for e in range(1,23)+["X"]]
 
   # Reading alias
-  aliasDict = read_alias_dictionary(alias_file_name)
+  aliasDict = read_alias_dictionary(aliasFileName)
 
   # Reading Tss
   regionDict = dict() # gene_symbol -> [chr, tss-tssExt, tss, tss+tssExt, tts-tssExt, tts, tts+tssExt, gene, score, strand]

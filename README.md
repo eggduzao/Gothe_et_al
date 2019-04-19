@@ -28,6 +28,21 @@ pip install --user pysam
 pip install --user pyBigWig
 ```
 
+
+
+
+bedtools
+samtools
+kent scripts
+pip install deeptools
+sudo apt-get install unzip
+---
+R dependencies
+
+
+
+
+
 ### Gothe et al toolkit
 
 To install this software simply type:

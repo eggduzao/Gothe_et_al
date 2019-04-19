@@ -15,9 +15,6 @@ from src import __version__
 from ..Util import PassThroughOptionParser
 from createTable import create_table
 
-# External
-# TODO
-
 """
 gene_metaplots
 
@@ -42,22 +39,22 @@ def uncompressing_files(compressed_file_name, uncompressed_file_name):
   cc = compressed_file_name.split(".")
 
   # Uncompressing
-  if(cc[-2] == "tar"):
-    if(cc[-1] == "gz"):
-      command = "tar -xO "+compressed_file_name+" > "+uncompressed_file_name
-      os.system(command)
-    else:
+  if(cc[-1] == "gz" or cc[-1] == "tar" or cc[-2] == "tar" or cc[-1] == "zip"):
+    if(cc[-1] == "tar"):
       command = "tar -O "+compressed_file_name+" > "+uncompressed_file_name
       os.system(command)
-  elif(cc[-1] == "gz"):
-    command = "gzip -cd "+dsb_file_name+" > "+uncompressed_file_name
-    os.system(command)
-  elif(cc[-1] == "zip"):
-    command = "unzip -p "+dsb_file_name+" > "+uncompressed_file_name
-    os.system(command)
-
-  else: print("ERROR: We only support tar.gz, .gz and .zip compressions.")
-
+    if(cc[-2] == "tar"):
+      if(cc[-1] == "gz"):
+        command = "tar -xO "+compressed_file_name+" > "+uncompressed_file_name
+        os.system(command)
+      else: print("ERROR: Unrecognized tarball.")
+    elif(cc[-1] == "gz"):
+      command = "gzip -cd "+dsb_file_name+" > "+uncompressed_file_name
+      os.system(command)
+    elif(cc[-1] == "zip"):
+      command = "unzip -p "+dsb_file_name+" > "+uncompressed_file_name
+      os.system(command)
+    else: print("ERROR: We only support tar.gz, .gz and .zip compressions.")
 
 ###################################################################################################
 # Main
@@ -119,7 +116,7 @@ def main():
   parser.add_option("--bamCount", dest="bamCount", type="int", metavar="INT", default=1000000, help=("Placeholder."))
   parser.add_option("--aliasFileName", dest="aliasFileName", type="string", metavar="FILE", default=None, help=("Placeholder."))
   parser.add_option("--genesFileName", dest="genesFileName", type="string", metavar="FILE", default=None, help=("Placeholder."))
-  parser.add_option("--featurePeakFileName", dest="featurePeakFileName", type="FILE", metavar="FILE", default=None, help=("Placeholder."))
+  parser.add_option("--expressionList", dest="expListFileName", type="string", metavar="FILE", default=None, help=("Placeholder."))
   parser.add_option("--bamFileName", dest="bamFileName", type="string", metavar="FILE", default=None, help=("Placeholder."))
   parser.add_option("--tempLocation", dest="tempLocation", type="string", metavar="PATH", default=None, help=("Placeholder."))
   parser.add_option("--outputFileName", dest="outputFileName", type="string", metavar="FILE", default=None, help=("Placeholder."))
@@ -134,7 +131,7 @@ def main():
   percentileList = range(100,-1,-1)
   aliasFileName = options.aliasFileName
   genesFileName = options.genesFileName
-  featurePeakFileName = options.featurePeakFileName
+  expListFileName = options.expListFileName
   bamFileName = options.bamFileName
   tempLocation = options.tempLocation
   outputFileName = options.outputFileName
@@ -147,7 +144,7 @@ def main():
   if(not percentileList): print(argument_error_message)
   if(not aliasFileName): print(argument_error_message)
   if(not genesFileName): print(argument_error_message)
-  if(not output_file_name): print(argument_error_message)
+  if(not expListFileName): print(argument_error_message)
   if(not bamFileName): print(argument_error_message)
   if(not tempLocation): print(argument_error_message)
   if(not outputFileName): print(argument_error_message)
@@ -164,16 +161,19 @@ def main():
   genesFileNameUnc = genesFileName
   uncompressing_files(genesFileName, genesFileNameUnc)
 
-  # Uncompress featurePeakFileName
-  featurePeakFileNameUnc = featurePeakFileName
-  uncompressing_files(featurePeakFileName, featurePeakFileNameUnc)
+  # Uncompress expListFileName
+  expListFileNameUnc = expListFileName
+  uncompressing_files(expListFileName, expListFileNameUnc)
 
   # Uncompress bamFileName
   bamFileNameUnc = bamFileName
   uncompressing_files(bamFileName, bamFileNameUnc)
 
   # Creating table
-  create_table(nBins, tssExt, bamCount, percentileList, aliasFileNameUnc, genesFileNameUnc, featurePeakFileNameUnc, bamFileNameUnc, tempLocation, outputFileName)
+  create_table(nBins, tssExt, bamCount, percentileList, aliasFileNameUnc, genesFileNameUnc, expListFileNameUnc, bamFileNameUnc, tempLocation, outputFileName)
+
+  # Script path
+  script_path = "/".join(os.path.realpath(__file__).split("/")[:-1]) + "/"
 
   # Creating plot
   plotFileName = ".".join(outputFileName.split(".")[:-1]) + ".pdf"

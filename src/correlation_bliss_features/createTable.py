@@ -11,14 +11,6 @@ import pyBigWig
 import numpy as np
 from pysam import Samfile
 
-# Input
-ext = int(sys.argv[1])
-featureSummitFileName = sys.argv[2]
-bamNames = sys.argv[3].split(",")
-bamCounts = [float(e) for e in sys.argv[4].split(",")]
-bamList = sys.argv[5].split(",")
-outputFileName = sys.argv[6]
-
 ###################################################################################################
 # Functions
 ###################################################################################################
@@ -36,50 +28,55 @@ def fetchSignalBw(bwFile, region):
 # Intersection table
 ###################################################################################################
 
-# Allowed chromosomes
-chrList = ["chr"+str(e) for e in range(1,23)+["X"]]
+def create_table(half_ext, feature_summit_file_name, bam_names, bam_counts, bam_list, output_file_name):
 
-# Fetching regions
-featureSummitFile = open(featureSummitFileName,"r")
-regionList = []
-for line in featureSummitFile:
-  ll = line.strip().split("\t")
-  if(ll[0] not in chrList): continue
-  region = [ll[0], int(ll[1])-ext, int(ll[2])+ext]
-  if(int(region[1]) < 0): continue
-  regionList.append(region)
-featureSummitFile.close()
+  # Initialization
+  outLoc = "/".join(output_file_name.split("\t")[:-1]) + "/"
+  command = "mkdir -p "+outLoc
+  os.system(command)
 
-# Creating table
-matrix = []
-for i in range(0,len(bamList)):
-  inputBamFileName = bamList[i]
-  correctFactor = bamCounts[i]/1000000
-  if(".bam" in inputBamFileName):
-    bamFile = Samfile(inputBamFileName,"rb")
-    vec = []
-    for region in regionList:
-      try: bamSignal = fetchSignal(bamFile, region) / correctFactor
-      except Exception: bamSignal = 0
-      vec.append(bamSignal)
-  else:
-    bamFile = pyBigWig.open(inputBamFileName)
-    vec = []
-    for region in regionList:
-      #try: 
-      bamSignal = fetchSignalBw(bamFile, region) / correctFactor
-      #except Exception: bamSignal = 0
+  # Allowed chromosomes
+  chrList = ["chr"+str(e) for e in range(1,23)+["X"]]
+
+  # Fetching regions
+  featureSummitFile = open(feature_summit_file_name,"r")
+  regionList = []
+  for line in featureSummitFile:
+    ll = line.strip().split("\t")
+    if(ll[0] not in chrList): continue
+    region = [ll[0], int(ll[1])-half_ext, int(ll[2])+half_ext]
+    if(int(region[1]) < 0): continue
+    regionList.append(region)
+  featureSummitFile.close()
+
+  # Creating table
+  matrix = []
+  for i in range(0,len(bam_list)):
+    inputBamFileName = bam_list[i]
+    correctFactor = int(bam_counts[i])/1000000
+    if(".bam" in inputBamFileName):
+      bamFile = Samfile(inputBamFileName,"rb")
+      vec = []
+      for region in regionList:
+        try: bamSignal = fetchSignal(bamFile, region) / correctFactor
+        except Exception: bamSignal = 0
+        vec.append(bamSignal)
+    else:
+      bamFile = pyBigWig.open(inputBamFileName)
+      vec = []
+      for region in regionList:
+        try: bamSignal = fetchSignalBw(bamFile, region) / correctFactor
+        except Exception: bamSignal = 0
       vec.append(bamSignal) 
-  matrix.append(vec)
-  bamFile.close()
-outputFile = open(outputFileName,"w")
-outputFile.write("\t".join(bamNames)+"\n")
-for j in range(0,len(matrix[0])):
-  vec = []
-  for i in range(0,len(matrix)):
-    try: vec.append(str(matrix[i][j]))
-    except Exception: vec.append("NA")
-  outputFile.write("\t".join(vec)+"\n")
-outputFile.close()
-
+    matrix.append(vec)
+    bamFile.close()
+  outputFile = open(output_file_name,"w")
+  outputFile.write("\t".join(bam_names)+"\n")
+  for j in range(0,len(matrix[0])):
+    vec = []
+    for i in range(0,len(matrix)):
+      try: vec.append(str(matrix[i][j]))
+      except Exception: vec.append("NA")
+    outputFile.write("\t".join(vec)+"\n")
+  outputFile.close()
 
