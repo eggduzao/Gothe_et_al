@@ -54,20 +54,22 @@ def create_table(half_ext, feature_summit_file_name, bam_names, bam_counts, bam_
   for i in range(0,len(bam_list)):
     inputBamFileName = bam_list[i]
     correctFactor = int(bam_counts[i])/1000000
-    if(".bam" in inputBamFileName):
+    extension = inputBamFileName.split(".")[-1]
+    if(extension == "bam"):
       bamFile = Samfile(inputBamFileName,"rb")
       vec = []
       for region in regionList:
         try: bamSignal = fetchSignal(bamFile, region) / correctFactor
         except Exception: bamSignal = 0
         vec.append(bamSignal)
-    else:
+    elif(extension == "bw" or extension == "bigwig"):
       bamFile = pyBigWig.open(inputBamFileName)
       vec = []
       for region in regionList:
         try: bamSignal = fetchSignalBw(bamFile, region) / correctFactor
         except Exception: bamSignal = 0
-      vec.append(bamSignal) 
+      vec.append(bamSignal)
+    else: print("The tool supports only BAM or BIGWIG files.")
     matrix.append(vec)
     bamFile.close()
   outputFile = open(output_file_name,"w")
@@ -79,4 +81,3 @@ def create_table(half_ext, feature_summit_file_name, bam_names, bam_counts, bam_
       except Exception: vec.append("NA")
     outputFile.write("\t".join(vec)+"\n")
   outputFile.close()
-

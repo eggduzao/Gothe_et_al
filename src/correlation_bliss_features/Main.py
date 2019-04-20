@@ -57,7 +57,6 @@ def uncompressing_files(compressed_file_name, uncompressed_file_name):
       os.system(command)
     else: print("ERROR: We only support tar.gz, .gz and .zip compressions.")
 
-
 ###################################################################################################
 # Main
 ###################################################################################################
@@ -172,4 +171,3 @@ def main():
   os.system(command)
   command = "Rscript "+script_path+"correlation.R "+" ".join([graphWidth, marginX, inputTableFileName, outputFileName, outputLocation])
   os.system(command)
-

@@ -384,4 +384,3 @@ def main():
      
   # Creating table
   create_multi_table(max_dist, alias_file_name, genes_file_name, exp_list_file_name, dsb_bam_file_name, dist_list_file_name, output_location)
-

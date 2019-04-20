@@ -113,4 +113,3 @@ def create_table(max_dist, alias_file_name, all_genes_file_name, anchor_all_file
     for e in anchorFileList: e.close()
 
   outputFile.close()
-

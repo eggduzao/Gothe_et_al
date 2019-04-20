@@ -71,4 +71,3 @@ vectorZ = as.numeric(table[,"DSB"]) * 100
 # 3D Correlation
 initialText = "Distance vs DSBs vs Expression"
 corrPlot3D(vectorX, vectorY, vectorZ, initialText, seq(0, max_dist, 20), outFileName)
-

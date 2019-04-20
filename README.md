@@ -26,22 +26,22 @@ python get-pip.py
 python -m pip install --user numpy scipy matplotlib ipython jupyter pandas sympy nose
 pip install --user pysam
 pip install --user pyBigWig
-```
-
-
-
-
-bedtools
-samtools
-kent scripts
 pip install deeptools
 sudo apt-get install unzip
----
-R dependencies
+curl https://github.com/samtools/samtools/releases/download/1.9/samtools-1.9.tar.bz2
+tar xjf samtools-1.9.tar.bz2
+cd samtools-1.9
+./configure --prefix=/where/to/install
+make
+make install
+```
 
+The program also requires a couple of R packages. After a successful installation of R please type:
 
-
-
+```
+R
+install.packages(c("MASS", "OneR", "RColorBrewer", "colorspace", "ggplot2", "ggthemes", "gplots", "lattice", "plot3D", "plotly", "plotrix", "reshape", "scatterplot3d"))
+```
 
 ### Gothe et al toolkit
 
@@ -112,3 +112,4 @@ Finally, you will be able to create the Figures by applying the following comman
 ```
 corr-dsb-dist-exp --max-dist 200 --alias-file ~/input/alias_hg19.txtt --chrom-sizes ~/input/chrom.sizes.hg19.txt --genes-file ~/input/all_genes.bed --expression-file ~/input/K562_expression.txt --dsb-file ~/input/GSM3444989_K562_ETO.bed.gz --distance-file ~/input/K562_loops.txt --temp-loc ~/temp/ --output-location ~/output/
 ```
+

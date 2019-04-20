@@ -208,7 +208,7 @@ for tool_option in options.param_tools:
 short_description = "Toolkit to perform Gothe et al paper's analyses"
 classifiers_list = ["Topic :: Scientific/Engineering :: Bio-Informatics",
                     "Topic :: Scientific/Engineering :: Artificial Intelligence"]
-keywords_list = ["ChIP-seq", "DNase-seq", "DNA Damage", "DSBs", "CTCF", "MLL"]
+keywords_list = ["MLL", "DSBs", "DNA Damage", "Transcription", "CTCF", "Translocations"]
 author_list = ["Eduardo G. Gusmao", "Giuseppe Petrosino", "Argyris Papantonis", "Vassilis Roukos"]
 corresponding_mail = "eduardogade@gmail.com"
 license_type = "GPL"

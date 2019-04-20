@@ -82,4 +82,3 @@ corrPlot2D(vectorX, vectorY, distLabel, expLabel, initialText, seq(0, max_dist, 
 # Expression vs DSB
 initialText = "Expression vs DSBs"
 corrPlot2D(vectorY, vectorZ, expLabel, dsbLabel, initialText, c(-2, -1, 0, 1, 2, 3, 4, 5), 0, 35, outFileNameED)
-

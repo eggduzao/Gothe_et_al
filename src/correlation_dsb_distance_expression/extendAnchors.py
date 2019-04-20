@@ -120,4 +120,3 @@ def extend_anchors(largest_length_half, loop_file_name, chrom_sizes_file_name, t
   index_bam_file(file_with_and_wo_ctcf_name_bam)
   index_bam_file(file_with_ctcf_name_bam)
   index_bam_file(file_wo_ctcf_name_bam)
-

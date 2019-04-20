@@ -3,7 +3,7 @@ Util
 ===================
 The Util classes contains many utilities needed by other classes such as the paths to input files.
 
-Authors: Eduardo G. Gusmao.
+Authors: Eduardo Gade Gusmao.
 """
 
 # Python

@@ -140,4 +140,3 @@ def create_hic_file(chrom_sizes_file_name, ctcf_peaks_file_name, ctcf_motifs_fil
   if(os.path.isfile(ctcf_peaks_file_name) and os.path.isfile(ctcf_motifs_file_name)):
     ctcf_peaks_file.close()
     ctcf_motifs_file.close()
-

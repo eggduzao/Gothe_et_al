@@ -78,4 +78,3 @@ def create_bam_file(chrom_sizes_file_name, dsb_bed_file_list, temporary_location
   else: dsb_bam_file_name = dsbBamFileNameList[0]
 
   index_bam_file(dsb_bam_file_name)
-

@@ -122,4 +122,3 @@ def create_exp_file(alias_file_name, chrom_sizes_file_name, gene_location_file_n
 
   # Writing expression
   write_expression_file(exp_dict, output_file_name)
-

@@ -112,7 +112,7 @@ spearman <- function(vec1, vec2){
 
 # Reading features table
 inputTable = read.table(inputTableFileName, header = TRUE, sep = "\t")
-blissVec = log10(blissTable[,1])
+blissVec = log10(inputTable[,1])
 
 # Calculating correlations
 featureVec = c()
@@ -137,4 +137,3 @@ nameVec = nameVec[featureOrder]
 
 # Create plot
 linePlot(featureVec, randVec, nameVec, graphWidth, marginX, outputFileName)
-
