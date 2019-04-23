@@ -30,9 +30,9 @@ from pysam import Samfile
 corr-dsb-dist-exp
 
 This program calculates:
-- Distances from a list of genes to their closest anchors."
-- The expression of these genes."
-- The proportion of double-strand breaks (DSBs) in these genes."
+- Distances from a list of genes to their closest anchors.
+- The expression of these genes.
+- The proportion of double-strand breaks (DSBs) in these genes.
 
 Python Dependencies:
 - Numpy >= 1.13.1
