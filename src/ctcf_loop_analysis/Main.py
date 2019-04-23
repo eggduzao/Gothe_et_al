@@ -120,7 +120,7 @@ def main():
   parser.add_option("--alias-file", dest="alias_file_name", type="string", metavar="FILE", default=None, help=("File containing gene aliases."))
   parser.add_option("--gene-file", dest="gene_file_name", type="string", metavar="FILE", default=None, help=("A simple BED file containing the location of genes."))
   parser.add_option("--ctcf-file", dest="ctcf_file_name", type="string", metavar="FILE", default=None, help=("A file containing the particular genes (or other elements) that overlapped a CTCF factor."))
-  parser.add_option("--expression-file", dest="expression_file_name", type="string", metavar="FILE", default=None, help=("Placeholder."))
+  parser.add_option("--expression-file", dest="expression_file_name", type="string", metavar="FILE", default=None, help=("A plain text (tab-separated) file containing the genes in the first column and their expression in the second column."))
   parser.add_option("--dsb-file", dest="dsb_file_name", type="string", metavar="FILE", default=None, help=("A BAM file containing all the DSBs."))
   parser.add_option("--temp", dest="temp_location", type="string", metavar="PATH", default=None, help=("Temporary location to aid in the execution."))
   parser.add_option("--output-file", dest="output_file_name", type="string", metavar="FILE", default=None, help=("Output file name."))

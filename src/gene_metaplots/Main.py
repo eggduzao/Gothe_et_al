@@ -117,7 +117,7 @@ def main():
   parser.add_option("--tssExt", dest="tssExt", type="int", metavar="INT", default=3000, help=("The size, in bp, of promoter regions. The original was set to 2Kbp."))
   parser.add_option("--bamCount", dest="bamCount", type="int", metavar="INT", default=1000000, help=("The total number of reads in the BAM file containing the signal to plot."))
   parser.add_option("--aliasFileName", dest="aliasFileName", type="string", metavar="FILE", default=None, help=("File containing gene aliases."))
-  parser.add_option("--genesFileName", dest="genesFileName", type="string", metavar="FILE", default=None, help=("A file containing the location of genes. In this particular case the format has to be ENCODE's refseq table."))
+  parser.add_option("--genesFileName", dest="genesFileName", type="string", metavar="FILE", default=None, help=("A file containing the location of genes. In this particular case the format has to be UCSC's refseq table."))
   parser.add_option("--expressionList", dest="expListFileName", type="string", metavar="FILE", default=None, help=("A plain text (tab-separated) file containing the genes in the first column and their expression in the second column."))
   parser.add_option("--bamFileName", dest="bamFileName", type="string", metavar="FILE", default=None, help=("A BAM file containing the signal in which the meta-plot will be calculated."))
   parser.add_option("--temp", dest="tempLocation", type="string", metavar="PATH", default=None, help=("Temporary location to aid in the execution."))
