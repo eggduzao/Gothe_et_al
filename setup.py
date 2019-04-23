@@ -1,3 +1,4 @@
+from __future__ import print_function
 import os
 import sys
 import io
@@ -9,10 +10,6 @@ from distutils import dir_util
 from setuptools import setup, find_packages
 from os import walk, chown, chmod, path, getenv, makedirs, remove
 from optparse import OptionParser, BadOptionError, AmbiguousOptionError
-
-# Python 3 support
-#if not sys.version_info[0] == 2:
-#    sys.exit("Sorry, Python 3 is not supported (yet)")
 
 """
 Installs the Gothe et al. tools with standard setuptools options.

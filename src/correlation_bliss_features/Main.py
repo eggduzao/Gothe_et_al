@@ -4,6 +4,7 @@
 ###################################################################################################
 
 # Python
+from __future__ import print_function
 import os
 import sys
 from optparse import SUPPRESS_HELP
@@ -40,7 +41,7 @@ def uncompressing_files(compressed_file_name, uncompressed_file_name):
   cc = compressed_file_name.split(".")
 
   # Uncompressing
-  if(cc[-1] == "gz" or cc[-1] == "tar" or cc[-1] == "zip"):
+  if(cc[-1] == "gz" or cc[-1] == "tar" or cc[-2] == "tar" or cc[-1] == "zip"):
     if(cc[-1] == "tar"):
       command = "tar -O "+compressed_file_name+" > "+uncompressed_file_name
       os.system(command)
@@ -56,6 +57,7 @@ def uncompressing_files(compressed_file_name, uncompressed_file_name):
       command = "unzip -p "+dsb_file_name+" > "+uncompressed_file_name
       os.system(command)
     else: print("ERROR: We only support tar.gz, .gz and .zip compressions.")
+  else: uncompressed_file_name = compressed_file_name
 
 ###################################################################################################
 # Main
@@ -113,12 +115,13 @@ def main():
   """
 
   # Input Options
-  parser.add_option("--half-ext", dest="half_ext", type="int", metavar="INT", default=500, help=("Placeholder."))
-  parser.add_option("--regions", dest="feature_summit_file_name", type="string", metavar="FILE", default=None, help=("Placeholder."))
-  parser.add_option("--signal-label-list", dest="bam_names", type="string", metavar="NAME_1[,NAME_2,...,NAME_N]", default=None, help=("Placeholder."))
-  parser.add_option("--signal-count-list", dest="bam_counts", type="string", metavar="INT_1[,INT_2,...,INT_N]", default=None, help=("Placeholder."))
-  parser.add_option("--signal-file-list", dest="bam_list", type="string", metavar="FILE_1[,FILE_2,...,FILE_N]", default=None, help=("Placeholder."))
-  parser.add_option("--output-file", dest="output_file_name", type="string", metavar="FILE", default=None, help=("Placeholder."))
+  parser.add_option("--half-ext", dest="half_ext", type="int", metavar="INT", default=500, help=("Half the distance (in bp) from the middle of the feature to calculate the correlation."))
+  parser.add_option("--regions", dest="feature_summit_file_name", type="string", metavar="FILE", default=None, help=("A file containing the regions in which the features will be centered at to calculate the correlation."))
+  parser.add_option("--signal-label-list", dest="bam_names", type="string", metavar="NAME_1[,NAME_2,...,NAME_N]", default=None, help=("A comma-separated list of labels for each signal (features) to be plot."))
+  parser.add_option("--signal-count-list", dest="bam_counts", type="string", metavar="INT_1[,INT_2,...,INT_N]", default=None, help=("A comma-separated list containing the total read count of each signal's (features's) BAM file."))
+  parser.add_option("--signal-file-list", dest="bam_list", type="string", metavar="FILE_1[,FILE_2,...,FILE_N]", default=None, help=("A comma-separated list of BAM files for each signal (features) to be plot."))
+  parser.add_option("--temp", dest="temp_location", type="string", metavar="PATH", default=None, help=("Temporary location to aid in the execution."))
+  parser.add_option("--output-file", dest="output_file_name", type="string", metavar="FILE", default=None, help=("Output file name."))
 
   # Processing Options
   options, arguments = parser.parse_args()
@@ -129,6 +132,7 @@ def main():
   bam_names = options.bam_names
   bam_counts = options.bam_counts
   bam_list = options.bam_list
+  temp_location = options.temp_location
   output_file_name = options.output_file_name
 
   # Argument error
@@ -138,6 +142,7 @@ def main():
   if(not bam_names): print(argument_error_message)
   if(not bam_counts): print(argument_error_message)
   if(not bam_list): print(argument_error_message)
+  if(not temp_location): print(argument_error_message)
   if(not output_file_name): print(argument_error_message)
 
   ###################################################################################################
@@ -145,15 +150,17 @@ def main():
   ###################################################################################################
 
   # Uncompress feature_summit_file_name
-  feature_summit_file_name_unc = feature_summit_file_name
+  feature_summit_file_name_unc = temp_location + "feature_summit_file_name_unc.bed"
   uncompressing_files(feature_summit_file_name, feature_summit_file_name_unc)
 
   # Uncompress bam_list
   bam_list_unc = []
+  counter = 1
   for bam_file_name in bam_list:
-    bam_file_name_unc = bam_file_name
+    bam_file_name_unc = temp_location + "bam_file_name_unc" + str(counter) + ".bam"
     uncompressing_files(bam_file_name, bam_file_name_unc)
     bam_list_unc.append(bam_file_name_unc)
+    counter += 1
 
   # Create table
   create_table(half_ext, feature_summit_file_name_unc, bam_names, bam_counts, bam_list_unc, output_file_name)
@@ -171,3 +178,4 @@ def main():
   os.system(command)
   command = "Rscript "+script_path+"correlation.R "+" ".join([graphWidth, marginX, inputTableFileName, outputFileName, outputLocation])
   os.system(command)
+

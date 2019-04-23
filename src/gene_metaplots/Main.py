@@ -4,6 +4,7 @@
 ###################################################################################################
 
 # Python
+from __future__ import print_function
 import os
 import sys
 from optparse import SUPPRESS_HELP
@@ -55,6 +56,7 @@ def uncompressing_files(compressed_file_name, uncompressed_file_name):
       command = "unzip -p "+dsb_file_name+" > "+uncompressed_file_name
       os.system(command)
     else: print("ERROR: We only support tar.gz, .gz and .zip compressions.")
+  else: uncompressed_file_name = compressed_file_name
 
 ###################################################################################################
 # Main
@@ -111,15 +113,15 @@ def main():
   """
 
   # Input Options
-  parser.add_option("--nBins", dest="nBins", type="int", metavar="INT", default=15, help=("Placeholder."))
-  parser.add_option("--tssExt", dest="tssExt", type="int", metavar="INT", default=3000, help=("Placeholder."))
-  parser.add_option("--bamCount", dest="bamCount", type="int", metavar="INT", default=1000000, help=("Placeholder."))
-  parser.add_option("--aliasFileName", dest="aliasFileName", type="string", metavar="FILE", default=None, help=("Placeholder."))
-  parser.add_option("--genesFileName", dest="genesFileName", type="string", metavar="FILE", default=None, help=("Placeholder."))
-  parser.add_option("--expressionList", dest="expListFileName", type="string", metavar="FILE", default=None, help=("Placeholder."))
-  parser.add_option("--bamFileName", dest="bamFileName", type="string", metavar="FILE", default=None, help=("Placeholder."))
-  parser.add_option("--tempLocation", dest="tempLocation", type="string", metavar="PATH", default=None, help=("Placeholder."))
-  parser.add_option("--outputFileName", dest="outputFileName", type="string", metavar="FILE", default=None, help=("Placeholder."))
+  parser.add_option("--nBins", dest="nBins", type="int", metavar="INT", default=15, help=("Number of bins in which the meta-plot region (6Kbp) is going to be divided to average the signal. The original was set to 15"))
+  parser.add_option("--tssExt", dest="tssExt", type="int", metavar="INT", default=3000, help=("The size, in bp, of promoter regions. The original was set to 2Kbp."))
+  parser.add_option("--bamCount", dest="bamCount", type="int", metavar="INT", default=1000000, help=("The total number of reads in the BAM file containing the signal to plot."))
+  parser.add_option("--aliasFileName", dest="aliasFileName", type="string", metavar="FILE", default=None, help=("File containing gene aliases."))
+  parser.add_option("--genesFileName", dest="genesFileName", type="string", metavar="FILE", default=None, help=("A file containing the location of genes. In this particular case the format has to be ENCODE's refseq table."))
+  parser.add_option("--expressionList", dest="expListFileName", type="string", metavar="FILE", default=None, help=("A plain text (tab-separated) file containing the genes in the first column and their expression in the second column."))
+  parser.add_option("--bamFileName", dest="bamFileName", type="string", metavar="FILE", default=None, help=("A BAM file containing the signal in which the meta-plot will be calculated."))
+  parser.add_option("--temp", dest="tempLocation", type="string", metavar="PATH", default=None, help=("Temporary location to aid in the execution."))
+  parser.add_option("--outputFileName", dest="outputFileName", type="string", metavar="FILE", default=None, help=("Output file name."))
 
   # Processing Options
   options, arguments = parser.parse_args() 
@@ -154,19 +156,19 @@ def main():
   ###################################################################################################
 
   # Uncompress aliasFileName
-  aliasFileNameUnc = aliasFileName
+  aliasFileNameUnc = tempLocation + "aliasFileNameUnc.bed"
   uncompressing_files(aliasFileName, aliasFileNameUnc)
 
   # Uncompress genesFileName
-  genesFileNameUnc = genesFileName
+  genesFileNameUnc = tempLocation + "genesFileNameUnc.bed"
   uncompressing_files(genesFileName, genesFileNameUnc)
 
   # Uncompress expListFileName
-  expListFileNameUnc = expListFileName
+  expListFileNameUnc = tempLocation + "expListFileNameUnc.txt"
   uncompressing_files(expListFileName, expListFileNameUnc)
 
   # Uncompress bamFileName
-  bamFileNameUnc = bamFileName
+  bamFileNameUnc = tempLocation + "bamFileNameUnc.bam"
   uncompressing_files(bamFileName, bamFileNameUnc)
 
   # Creating table

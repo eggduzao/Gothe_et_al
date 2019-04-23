@@ -102,7 +102,7 @@ ln -s gothe_dir/data/genome/alias_hg19.txt ~/input/alias_hg19.txt
 ln -s gothe_dir/data/genome/all_genes.bed ~/input/all_genes.bed
 ln -s gothe_dir/data/genome/chrom.sizes.hg19.txt ~/input/chrom.sizes.hg19.txt
 ln -s gothe_dir/data/expression/K562_expression.txt ~/input/K562_expression.txt
-curl ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE63nnn/GSE63525/suppl/GSE63525_K562_HiCCUPS_looplist_with_motifs.txt.gz -o ~/input/K562_loops.txt
+curl ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE63nnn/GSE63525/suppl/GSE63525_K562_HiCCUPS_looplist_with_motifs.txt.gz -o ~/input/K562_loops.txt.gz
 ```
 
 Also, please log in the password-protected GEO repository and place the sBLISS file named *GSM3444989_K562_ETO.bed.gz* in ~/input/
@@ -110,6 +110,6 @@ Also, please log in the password-protected GEO repository and place the sBLISS f
 Finally, you will be able to create the Figures by applying the following command:
 
 ```
-corr-dsb-dist-exp --max-dist 200 --alias-file ~/input/alias_hg19.txtt --chrom-sizes ~/input/chrom.sizes.hg19.txt --genes-file ~/input/all_genes.bed --expression-file ~/input/K562_expression.txt --dsb-file ~/input/GSM3444989_K562_ETO.bed.gz --distance-file ~/input/K562_loops.txt --temp-loc ~/temp/ --output-location ~/output/
+corr-dsb-dist-exp --max-dist 200 --alias-file ~/input/alias_hg19.txtt --chrom-sizes ~/input/chrom.sizes.hg19.txt --genes-file ~/input/all_genes.bed --expression-file ~/input/K562_expression.txt --dsb-file ~/input/GSM3444989_K562_ETO.bed.gz --distance-file ~/input/K562_loops.txt.gz --temp-loc ~/temp/ --output-location ~/output/
 ```
 

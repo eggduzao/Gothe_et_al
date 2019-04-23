@@ -4,6 +4,7 @@
 ###################################################################################################
 
 # Python
+from __future__ import print_function
 import os
 import sys
 import math
@@ -122,6 +123,32 @@ def fetch_expression(expression_file_name):
 
   # Return objects
   return exp_dict
+
+# Uncompressing files
+def uncompressing_files(compressed_file_name, uncompressed_file_name):
+
+  # Taking suffix
+  cc = compressed_file_name.split(".")
+
+  # Uncompressing
+  if(cc[-1] == "gz" or cc[-1] == "tar" or cc[-2] == "tar" or cc[-1] == "zip"):
+    uncompressed_file_name = ".".join(uncompressed_file_name.split(".")[:-1]) + "." + compressed_file_name.split(".")[-2]
+    if(cc[-1] == "tar"):
+      command = "tar -O "+compressed_file_name+" > "+uncompressed_file_name
+      os.system(command)
+    if(cc[-2] == "tar"):
+      if(cc[-1] == "gz"):
+        command = "tar -xO "+compressed_file_name+" > "+uncompressed_file_name
+        os.system(command)
+      else: print("ERROR: Unrecognized tarball.")
+    elif(cc[-1] == "gz"):
+      command = "gzip -cd "+dsb_file_name+" > "+uncompressed_file_name
+      os.system(command)
+    elif(cc[-1] == "zip"):
+      command = "unzip -p "+dsb_file_name+" > "+uncompressed_file_name
+      os.system(command)
+    else: print("ERROR: We only support tar.gz, .gz and .zip compressions.")
+  else: uncompressed_file_name = compressed_file_name
 
 def create_multi_table(max_dist, alias_file_name, genes_file_name, exp_file_name, dsb_file_name, dist_file_name, output_location):
 
@@ -280,15 +307,15 @@ def main():
   """
 
   # Input Options
-  parser.add_option("--max-dist", dest="max_dist", type="int", metavar="INT", default=200, help=("Placeholder.")) # 1
-  parser.add_option("--alias-file", dest="alias_file_name", type="string", metavar="FILE", default=None, help=("Placeholder.")) # 2
-  parser.add_option("--chrom-sizes", dest="chrom_sizes_file_name", type="string", metavar="FILE", default=None, help=("Placeholder.")) # 3
-  parser.add_option("--genes-file", dest="genes_file_name", type="string", metavar="FILE", default=None, help=("Placeholder.")) # 4
-  parser.add_option("--expression-file", dest="exp_file_name", type="string", metavar="FILE", default=None, help=("Placeholder.")) # 5
-  parser.add_option("--dsb-file", dest="dsb_file_name", type="string", metavar="FILE", default=None, help=("Placeholder.")) # 6
-  parser.add_option("--distance-file", dest="dist_file_name", type="string", metavar="FILE", default=None, help=("Placeholder.")) # 7
-  parser.add_option("--temp-loc", dest="temp_loc", type="string", metavar="FILE", default=None, help=("Placeholder.")) # 8
-  parser.add_option("--output-location", dest="output_location", type="string", metavar="PATH", default=None, help=("Placeholder.")) # 9
+  parser.add_option("--max-dist", dest="max_dist", type="int", metavar="INT", default=200, help=("Maximum distance from the closest loop anchor to make the plots."))
+  parser.add_option("--alias-file", dest="alias_file_name", type="string", metavar="FILE", default=None, help=("File containing gene aliases."))
+  parser.add_option("--chrom-sizes", dest="chrom_sizes_file_name", type="string", metavar="FILE", default=None, help=("File containing the total length of all chromosomes."))
+  parser.add_option("--genes-file", dest="genes_file_name", type="string", metavar="FILE", default=None, help=("A simple BED file containing the location of genes."))
+  parser.add_option("--expression-file", dest="exp_file_name", type="string", metavar="FILE", default=None, help=("A tab-separated list containing the genes and their expression."))
+  parser.add_option("--dsb-file", dest="dsb_file_name", type="string", metavar="FILE", default=None, help=("A BED or BAM file containing all the DSBs."))
+  parser.add_option("--distance-file", dest="dist_file_name", type="string", metavar="FILE", default=None, help=("The output file of HiCCUPS loop caller. A CTCF-annotated file as in 'GSE63525' is preferred."))
+  parser.add_option("--temp", dest="temp_location", type="string", metavar="PATH", default=None, help=("Temporary location to aid in the execution."))
+  parser.add_option("--output-location", dest="output_location", type="string", metavar="PATH", default=None, help=("Path where the output will be written."))
 
   # Processing Options
   options, arguments = parser.parse_args()
@@ -320,67 +347,59 @@ def main():
   # Execution
   ###################################################################################################
 
-  # Correcting DSB file to BAM (uncompressing)
-  extracted_dsb_file_name = dsb_file_name
-  if(dsb_file_name.split(".")[-1] == "gz"):
-    extracted_dsb_file_name = temp_loc + "extracted_dsb_file_name." + dsb_file_name.split(".")[-2]
-    command = "gzip -cd "+dsb_file_name+" > "+extracted_dsb_file_name
-    os.system(command)
-  elif(dsb_file_name.split(".")[-1] == "zip"):
-    extracted_dsb_file_name = temp_loc + "extracted_dsb_file_name." + dsb_file_name.split(".")[-2]
-    command = "unzip -p "+dsb_file_name+" > "+extracted_dsb_file_name
-    os.system(command)
+  # Uncompress alias_file_name
+  alias_file_name_unc = temp_location + "alias_file_name_unc.txt"
+  uncompressing_files(alias_file_name, alias_file_name_unc)
+
+  # Uncompress chrom_sizes_file_name
+  chrom_sizes_file_name_unc = temp_location + "chrom_sizes_file_name_unc.txt"
+  uncompressing_files(chrom_sizes_file_name, chrom_sizes_file_name_unc)
+
+  # Uncompress genes_file_name
+  genes_file_name_unc = temp_location + "genes_file_name_unc.bed"
+  uncompressing_files(genes_file_name, genes_file_name_unc)
+
+  # Uncompress dsb_file_name
+  dsb_file_name_unc = temp_location + "dsb_file_name_unc.bam"
+  uncompressing_files(dsb_file_name, dsb_file_name_unc)
 
   # Correcting DSB file to BAM (supported formats)
-  dsb_bam_file_name = extracted_dsb_file_name
-  if(extracted_dsb_file_name.split(".")[-1] == "bed"):
+  dsb_bam_file_name = dsb_file_name_unc
+  if(dsb_file_name_unc.split(".")[-1] == "bed"):
     dsb_bam_file_name = temp_loc + "dsb_bam_file_name.bam"
-    create_bam_file(chrom_sizes_file_name, [extracted_dsb_file_name], temp_loc, dsb_bam_file_name)
-  elif(extracted_dsb_file_name.split(".")[-1] == "bam"): pass
+    create_bam_file(chrom_sizes_file_name, [dsb_file_name_unc], temp_loc, dsb_bam_file_name)
+  elif(dsb_file_name_unc.split(".")[-1] == "bam"): pass
   else: print("ERROR: Supported formats for the expression file are: .bam or .bed")
 
-  # Correcting expression file to list (uncompressing)
-  extracted_exp_file_name = exp_file_name
-  if(exp_file_name.split(".")[-1] == "gz"):
-    extracted_exp_file_name = temp_loc + "extracted_exp_file_name." + exp_file_name.split(".")[-2]
-    command = "gzip -cd "+exp_file_name+" > "+extracted_exp_file_name
-    os.system(command)
-  elif(exp_file_name.split(".")[-1] == "zip"):
-    extracted_exp_file_name = temp_loc + "extracted_exp_file_name." + exp_file_name.split(".")[-2]
-    command = "unzip -p "+exp_file_name+" > "+extracted_exp_file_name
-    os.system(command)
+  # Uncompress exp_file_name
+  exp_file_name_unc = temp_location + "exp_file_name_unc.txt"
+  uncompressing_files(exp_file_name, exp_file_name_unc)
 
   # Correcting expression file to list (supported formats)
-  exp_list_file_name = extracted_exp_file_name
-  if(extracted_exp_file_name.split(".")[-1] == "bed" or extracted_exp_file_name.split(".")[-1] == "bam"):
+  exp_list_file_name = exp_file_name_unc
+  if(exp_file_name_unc.split(".")[-1] == "bed" or exp_file_name_unc.split(".")[-1] == "bam"):
     exp_list_file_name = temp_loc + "exp_list_file_name.txt"
-    create_exp_file(alias_file_name, chrom_sizes_file_name, genes_file_name, extracted_exp_file_name, exp_list_file_name)
-  elif(extracted_exp_file_name.split(".")[-1] == "txt"): pass
+    create_exp_file(alias_file_name, chrom_sizes_file_name, genes_file_name, exp_file_name_unc, exp_list_file_name)
+  elif(exp_file_name_unc.split(".")[-1] == "txt"): pass
   else: print("ERROR: Supported formats for the expression file are: .bam, .bed or .txt")
   
-  # Correcting distances file to list (uncompressing)
-  extracted_dist_file_name = dist_file_name
-  if(dist_file_name.split(".")[-1] == "gz"):
-    extracted_dist_file_name = temp_loc + "extracted_dist_file_name." + dist_file_name.split(".")[-2]
-    command = "gzip -cd "+dist_file_name+" > "+extracted_dist_file_name
-    os.system(command)
-  elif(dist_file_name.split(".")[-1] == "zip"):
-    extracted_dist_file_name = temp_loc + "extracted_dist_file_name." + dist_file_name.split(".")[-2]
-    command = "unzip -p "+dist_file_name+" > "+extracted_dist_file_name
-    os.system(command)
+  # Uncompress dist_file_name
+  dist_file_name_unc = temp_location + "dist_file_name_unc.txt"
+  uncompressing_files(dist_file_name, dist_file_name_unc)
 
   # Correcting distances file to list (supported formats)
-  dist_list_file_name = extracted_dist_file_name
-  if(extracted_dist_file_name.split(".")[-1] == "txt"):
+  dist_list_file_name = dist_file_name_unc
+  if(dist_file_name_unc.split(".")[-1] == "txt"):
     extList = [str(e*1000) for e in range(0, max_dist+1)]
     for ext in extList:
       dist_w_list_file_name = temp_loc + "anchors_with_ctcf_" + ext
       dist_wo_list_file_name = temp_loc + "anchors_wo_ctcf_" + ext
       dist_wwo_list_file_name = temp_loc + "anchors_with_and_wo_ctcf_" + ext
-      extend_anchors(int(ext), extracted_dist_file_name, chrom_sizes_file_name, temp_loc, dist_wwo_list_file_name, dist_w_list_file_name, dist_wo_list_file_name)
+      extend_anchors(int(ext), dist_file_name_unc, chrom_sizes_file_name, temp_loc, dist_wwo_list_file_name, dist_w_list_file_name, dist_wo_list_file_name)
     dist_list_file_name = temp_loc + "dist_list_file_name.txt"
     create_table(max_dist, alias_file_name, genes_file_name, temp_loc + "anchors_with_ctcf", dist_list_file_name)
   else: print("ERROR: Supported formats for the expression file are: .txt (CTCF-annotated HiCCUPScontacts calling)")
      
   # Creating table
   create_multi_table(max_dist, alias_file_name, genes_file_name, exp_list_file_name, dsb_bam_file_name, dist_list_file_name, output_location)
+

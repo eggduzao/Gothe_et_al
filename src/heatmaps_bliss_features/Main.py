@@ -4,6 +4,7 @@
 ###################################################################################################
 
 # Python
+from __future__ import print_function
 import os
 import sys
 from optparse import SUPPRESS_HELP
@@ -54,7 +55,7 @@ def uncompressing_files(compressed_file_name, uncompressed_file_name):
       command = "unzip -p "+dsb_file_name+" > "+uncompressed_file_name
       os.system(command)
     else: print("ERROR: We only support tar.gz, .gz and .zip compressions.")
-
+  else: uncompressed_file_name = compressed_file_name
 
 ###################################################################################################
 # Main
@@ -114,12 +115,12 @@ def main():
   """
 
   # Input Options
-  parser.add_option("--half-ext", dest="half_ext", type="int", metavar="INT", default=200, help=("Placeholder."))
-  parser.add_option("--regions", dest="feature_summit_file_name", type="string", metavar="FILE", default=None, help=("Placeholder."))
-  parser.add_option("--signal-file", dest="signal_file_name", type="string", metavar="FILE", default=None, help=("Placeholder."))
-  parser.add_option("--signal-label", dest="signal_label", type="string", metavar="STRING", default=None, help=("Placeholder."))
-  parser.add_option("--temp", dest="temp_location", type="string", metavar="PATH", default=None, help=("Placeholder."))
-  parser.add_option("--output-file", dest="output_file_name", type="string", metavar="FILE", default=None, help=("Placeholder."))
+  parser.add_option("--half-ext", dest="half_ext", type="int", metavar="INT", default=200, help=("Half the distance (in bp) from the middle of the feature to plot the heatmap."))
+  parser.add_option("--regions", dest="feature_summit_file_name", type="string", metavar="FILE", default=None, help=("A bed file in which the final heatmap will be sorted by its SCORE column."))
+  parser.add_option("--signal-file", dest="signal_file_name", type="string", metavar="FILE", default=None, help=("A BIGWIG file containing the signal in which to generate the heatmap."))
+  parser.add_option("--signal-label", dest="signal_label", type="string", metavar="STRING", default=None, help=("A label which will be plotted with the heatmap of the signal."))
+  parser.add_option("--temp", dest="temp_location", type="string", metavar="PATH", default=None, help=("Temporary location to aid in the execution."))
+  parser.add_option("--output-file", dest="output_file_name", type="string", metavar="FILE", default=None, help=("Output file name."))
 
   # Processing Options
   options, arguments = parser.parse_args()
@@ -146,12 +147,12 @@ def main():
   ###################################################################################################
 
   # Uncompress feature_summit_file_name
-  feature_summit_file_name_unc = feature_summit_file_name
-  uncompressing_files(feature_summit_file_name, feature_summit_file_name_unc)
+  feature_summit_file_name_unc = temp_location + "feature_summit_file_name_unc.bed"
+  uncompressing_files(feature_summit_file_name, temp_location, feature_summit_file_name_unc)
 
   # Uncompress signal_file_name
-  signal_file_name_unc = signal_file_name
-  uncompressing_files(signal_file_name, signal_file_name_unc)
+  signal_file_name_unc = temp_location + "signal_file_name_unc.bam"
+  uncompressing_files(signal_file_name, temp_location, signal_file_name_unc)
 
   # Create heatmap
   create_heatmap(half_ext, feature_summit_file_name_unc, signal_file_name_unc, signal_label, temp_location, output_file_name)
