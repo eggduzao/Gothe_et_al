@@ -1,7 +1,7 @@
 #
 #
 >
-> :warning: **Currently, this repository contains some issues on installation and compatibility between python versions. All the issues will be fixed by 15.May.**
+> :warning: **You need to download the data available on [Gothe et al](https://www.sciencedirect.com/science/article/pii/S1097276519303879) to be able to replicate the results.**
 >
 #
 #
